@@ -1,0 +1,61 @@
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import axios from 'axios';
+
+const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('budget_token'));
+  const [loading, setLoading] = useState(true);
+
+  // Configure axios to always send the token
+  if (token) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete axios.defaults.headers.common['Authorization'];
+  }
+
+  useEffect(() => {
+    const loadUser = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const { data } = await axios.get('/api/auth/me');
+        setUser(data.user);
+      } catch (err) {
+        setToken(null);
+        localStorage.removeItem('budget_token');
+      }
+      setLoading(false);
+    };
+    loadUser();
+  }, [token]);
+
+  const login = async (email, password) => {
+    const { data } = await axios.post('/api/auth/login', { email, password });
+    setToken(data.token);
+    setUser(data.user);
+    localStorage.setItem('budget_token', data.token);
+  };
+
+  const register = async (name, email, password) => {
+    await axios.post('/api/auth/register', { name, email, password });
+    // Intentionally NOT setting token here so the user is forced to login manually!
+  };
+
+  const logout = () => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('budget_token');
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};

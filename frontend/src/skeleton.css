@@ -1,0 +1,32 @@
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-color) 25%, var(--border-color) 50%, var(--surface-color) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 10px;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-text {
+  height: 20px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.skeleton-title {
+  height: 30px;
+  width: 50%;
+  margin-bottom: 15px;
+}
+
+.skeleton-card {
+  height: 150px;
+  width: 100%;
+}
