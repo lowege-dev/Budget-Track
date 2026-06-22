@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { useQueryClient } from '@tanstack/react-query';
 
 const AuthContext = createContext();
 
@@ -9,6 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('budget_token'));
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   // Configure axios to always send the token
   if (token) {
@@ -51,6 +53,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('budget_token');
+    queryClient.clear(); // Wipe all cached data for the previous user!
   };
 
   return (
