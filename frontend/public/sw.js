@@ -29,12 +29,12 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch - Network first, fallback to cache (for API), Cache first for static
+// Fetch Strategies
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
-  // API requests → network first, cache fallback
-  if (request.url.includes('/api/')) {
+  // 1. Navigation requests (HTML) & API → Network first, fallback to cache
+  if (request.mode === 'navigate' || request.destination === 'document' || request.url.includes('/api/')) {
     event.respondWith(
       fetch(request)
         .then((response) => {
@@ -47,7 +47,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets → cache first, network fallback
+  // 2. Static assets (JS, CSS, Images) → Cache first, network fallback
   event.respondWith(
     caches.match(request).then((cached) => {
       return cached || fetch(request).then((response) => {
