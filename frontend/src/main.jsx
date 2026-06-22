@@ -9,6 +9,10 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { AuthProvider } from './context/AuthContext'
 import axios from 'axios'
 
+// Set default base URL for API requests. 
+// Locally, it falls back to empty string (which uses the vite.config.js proxy to localhost:5000)
+// On Vercel, it uses the VITE_API_URL environment variable.
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
 // Add a global delay to simulate real-world network latency (so loading animations look good!)
 axios.interceptors.response.use(
   async (response) => {
