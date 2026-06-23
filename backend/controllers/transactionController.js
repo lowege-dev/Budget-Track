@@ -13,7 +13,7 @@ const pushToGoogleSheet = async (transaction) => {
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
-    const doc = new GoogleSpreadsheet('1DMQVxMCTh29CfRfVQC4-mPD-gUKB5th7gN5j2SCrnxE', serviceAccountAuth);
+    const doc = new GoogleSpreadsheet('1DMQVxMCth29CfRfVQC4-mPD-gUKB5th7gN5j25CrnxE', serviceAccountAuth);
     await doc.loadInfo(); 
     const sheet = doc.sheetsByIndex[0]; 
     
