@@ -9,9 +9,12 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const CATEGORY_COLORS = { Food: '#f97316', Transport: '#6366f1', Entertainment: '#ec4899', Shopping: '#a855f7', Utilities: '#14b8a6', Salary: '#10b981', Other: '#8395A7' };
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
+import { useCurrency } from '../hooks/useCurrency';
+
 export const AnalyticsTab = () => {
   const { data: transactions, isLoading } = useTransactions();
   const [monthOffset, setMonthOffset] = useState(0);
+  const { currency } = useCurrency();
 
   if (isLoading) return (
     <div style={{ padding: '0 1.25rem' }}>
@@ -63,7 +66,7 @@ export const AnalyticsTab = () => {
         padding: 10,
         cornerRadius: 10,
         callbacks: {
-          label: (ctx) => ` $${ctx.raw.toFixed(2)} (${((ctx.raw / totalExpense) * 100).toFixed(0)}%)`
+          label: (ctx) => ` ${currency}${ctx.raw.toFixed(2)} (${((ctx.raw / totalExpense) * 100).toFixed(0)}%)`
         }
       }
     }
@@ -78,7 +81,7 @@ export const AnalyticsTab = () => {
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#2D3436';
       ctx.font = "700 1.3rem 'Outfit', sans-serif";
-      ctx.fillText(`$${totalExpense.toFixed(0)}`, width / 2, height / 2 - 8);
+      ctx.fillText(`${currency}${totalExpense.toFixed(0)}`, width / 2, height / 2 - 8);
       ctx.fillStyle = '#8395A7';
       ctx.font = "400 0.75rem 'Outfit', sans-serif";
       ctx.fillText('Total Spent', width / 2, height / 2 + 14);
@@ -98,7 +101,7 @@ export const AnalyticsTab = () => {
       {/* Info */}
       <div className="card" style={{ margin: '0 1.25rem 0.75rem', textAlign: 'center' }}>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-          You have spent <strong style={{ color: 'var(--accent)' }}>${totalExpense.toLocaleString()}</strong> this month
+          You have spent <strong style={{ color: 'var(--accent)' }}>{currency}{totalExpense.toLocaleString()}</strong> this month
         </p>
       </div>
 

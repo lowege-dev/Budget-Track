@@ -16,8 +16,10 @@ const CATEGORIES = [
   { label: 'Salary',        icon: Briefcase,      color: '#10b981' },
   { label: 'Other',         icon: MoreHorizontal, color: '#8395A7' },
 ];
+import { useCurrency } from '../hooks/useCurrency';
 
 export const AddTab = ({ onDone }) => {
+  const { currency } = useCurrency();
   const [text, setText] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('Food');
@@ -118,7 +120,7 @@ export const AddTab = ({ onDone }) => {
             Amount
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-            <span style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--text-secondary)' }}>$</span>
+            <span style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{currency}</span>
             <input
               type="number"
               min="0"

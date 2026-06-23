@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Settings, Save, Link as LinkIcon, Copy, Check, Moon, Sun, Lock } from 'lucide-react';
+import { useCurrency } from '../hooks/useCurrency';
 
 export const SettingsTab = () => {
   const { user, updateGoogleSheet } = useAuth();
+  const { currency, setCurrency, CURRENCIES } = useCurrency();
   const [sheetUrl, setSheetUrl] = useState(user?.googleSheetId || '');
   const [status, setStatus] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -84,6 +86,26 @@ export const SettingsTab = () => {
           >
             Manage PIN
           </button>
+        </div>
+
+        <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontWeight: 600, fontSize: '1.2rem', color: 'var(--primary)' }}>{currency}</span>
+            <span style={{ fontWeight: 600 }}>Currency</span>
+          </div>
+          <select 
+            value={currency} 
+            onChange={(e) => setCurrency(e.target.value)}
+            style={{ 
+              padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border)', 
+              background: 'var(--surface)', color: 'var(--text)', outline: 'none',
+              fontWeight: 600, cursor: 'pointer'
+            }}
+          >
+            {CURRENCIES.map(c => (
+              <option key={c.symbol} value={c.symbol}>{c.label}</option>
+            ))}
+          </select>
         </div>
         
         <div style={{ marginBottom: '2rem' }}>

@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useTransactions } from '../hooks/useTransactions';
 import { TrendingUp, TrendingDown, Utensils, Car, Gamepad2, ShoppingBag, Zap, Briefcase, MoreHorizontal, Trash2, Search } from 'lucide-react';
 import { useDeleteTransaction } from '../hooks/useTransactions';
+import { useCurrency } from '../hooks/useCurrency';
 
 const CATEGORY_ICONS = { Food: Utensils, Transport: Car, Entertainment: Gamepad2, Shopping: ShoppingBag, Utilities: Zap, Salary: Briefcase, Other: MoreHorizontal };
 const CATEGORY_COLORS = { Food: '#f97316', Transport: '#6366f1', Entertainment: '#ec4899', Shopping: '#a855f7', Utilities: '#14b8a6', Salary: '#10b981', Other: '#8395A7' };
 
-const TxnItem = ({ t }) => {
+const TxnItem = ({ t, currency }) => {
   const { mutate: del, isPending } = useDeleteTransaction();
   const Icon = CATEGORY_ICONS[t.category] || MoreHorizontal;
   const color = CATEGORY_COLORS[t.category] || '#8395A7';
@@ -26,7 +27,7 @@ const TxnItem = ({ t }) => {
       </div>
       <div className="txn-right">
         <span className={`txn-amount ${isPositive ? 'positive' : 'negative'}`}>
-          {isPositive ? '+' : '-'}${Math.abs(t.amount).toLocaleString()}
+          {isPositive ? '+' : '-'}{currency}{Math.abs(t.amount).toLocaleString()}
         </span>
         <button className="txn-delete" onClick={() => del(t._id)} disabled={isPending}>
           <Trash2 size={15} />
@@ -39,6 +40,7 @@ const TxnItem = ({ t }) => {
 export const HomeTab = () => {
   const { data: transactions, isLoading } = useTransactions();
   const [search, setSearch] = useState('');
+  const { currency } = useCurrency();
 
   if (isLoading) return (
     <div style={{ padding: '0 1.25rem' }}>
@@ -66,20 +68,20 @@ export const HomeTab = () => {
       {/* Balance Card */}
       <div className="balance-card">
         <div className="balance-label">Total Balance</div>
-        <div className="balance-amount">${total}</div>
+        <div className="balance-amount">{currency}{total}</div>
         <div className="balance-row">
           <div className="balance-stat">
             <div className="stat-dot income"><TrendingUp size={14} /></div>
             <div className="stat-info">
               <span>Income</span>
-              <span>+${income}</span>
+              <span>+{currency}{income}</span>
             </div>
           </div>
           <div className="balance-stat">
             <div className="stat-dot expense"><TrendingDown size={14} /></div>
             <div className="stat-info">
               <span>Expense</span>
-              <span>-${expense}</span>
+              <span>-{currency}{expense}</span>
             </div>
           </div>
         </div>
@@ -89,11 +91,11 @@ export const HomeTab = () => {
       <div className="summary-row">
         <div className="summary-card income-card">
           <div className="summary-card-label">Total Income</div>
-          <div className="summary-card-amount">${income}</div>
+          <div className="summary-card-amount">{currency}{income}</div>
         </div>
         <div className="summary-card expense-card">
           <div className="summary-card-label">Total Expense</div>
-          <div className="summary-card-amount">${expense}</div>
+          <div className="summary-card-amount">{currency}{expense}</div>
         </div>
       </div>
 
@@ -117,7 +119,7 @@ export const HomeTab = () => {
       </div>
 
       <ul className="txn-list">
-        {displayList.map(t => <TxnItem key={t._id} t={t} />)}
+        {displayList.map(t => <TxnItem key={t._id} t={t} currency={currency} />)}
         {displayList.length === 0 && (
           <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem 0' }}>
             {search ? 'No matching transactions found.' : 'No transactions yet. Tap + to add one!'}

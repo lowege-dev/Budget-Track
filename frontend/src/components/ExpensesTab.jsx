@@ -7,9 +7,12 @@ const CATEGORY_COLORS = { Food: '#f97316', Transport: '#6366f1', Entertainment: 
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
+import { useCurrency } from '../hooks/useCurrency';
+
 export const ExpensesTab = () => {
   const { data: transactions, isLoading } = useTransactions();
   const [monthOffset, setMonthOffset] = useState(0);
+  const { currency } = useCurrency();
 
   if (isLoading) return (
     <div style={{ padding: '0 1.25rem' }}>
@@ -52,11 +55,11 @@ export const ExpensesTab = () => {
       <div className="summary-row">
         <div className="summary-card income-card">
           <div className="summary-card-label">Total Salary</div>
-          <div className="summary-card-amount">${totalIncome.toLocaleString()}</div>
+          <div className="summary-card-amount">{currency}{totalIncome.toLocaleString()}</div>
         </div>
         <div className="summary-card expense-card">
           <div className="summary-card-label">Total Expense</div>
-          <div className="summary-card-amount">${totalExpense.toLocaleString()}</div>
+          <div className="summary-card-amount">{currency}{totalExpense.toLocaleString()}</div>
         </div>
       </div>
 
@@ -89,7 +92,7 @@ export const ExpensesTab = () => {
                 </div>
               </div>
               <div className="expense-meta">
-                <div className="expense-amount">${amount.toLocaleString()}</div>
+                <div className="expense-amount">{currency}{amount.toLocaleString()}</div>
                 <div className="expense-pct">{pct}%</div>
               </div>
             </div>

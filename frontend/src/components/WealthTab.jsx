@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useGoals, useAddGoal, useUpdateGoal, useDeleteGoal } from '../hooks/useGoals';
+import { useCurrency } from '../hooks/useCurrency';
 import { Target, ShieldAlert, CreditCard, TrendingUp, Plus, Trash2, PlusCircle, CheckCircle2, X } from 'lucide-react';
 
 const CATEGORIES = [
@@ -22,6 +23,7 @@ const ProgressBar = ({ percentage, color }) => (
 );
 
 export const WealthTab = () => {
+  const { currency } = useCurrency();
   const { data: goals, isLoading } = useGoals();
   const { mutate: addGoal, isPending: isAdding } = useAddGoal();
   const { mutate: updateGoal } = useUpdateGoal();
@@ -86,12 +88,12 @@ export const WealthTab = () => {
         <div style={{ position: 'absolute', width: 160, height: 160, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', top: -50, right: -30 }} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div style={{ fontSize: '0.75rem', opacity: 0.75, marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Saved</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>${totalSaved.toFixed(2)}</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{currency}{totalSaved.toFixed(2)}</div>
         </div>
         <div style={{ width: '1px', background: 'rgba(255,255,255,0.2)' }} />
         <div style={{ flex: 1, paddingLeft: '0.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div style={{ fontSize: '0.75rem', opacity: 0.75, marginBottom: '0.25rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Remaining Debt</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>${totalDebt.toFixed(2)}</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: 700 }}>{currency}{totalDebt.toFixed(2)}</div>
         </div>
       </div>
 
@@ -276,10 +278,10 @@ export const WealthTab = () => {
                       {/* Amounts */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                         <span style={{ fontWeight: 700, fontSize: '1.1rem', color: cat.color }}>
-                          ${goal.currentAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          {currency}{goal.currentAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </span>
                         <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 500, alignSelf: 'flex-end' }}>
-                          / ${goal.targetAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          / {currency}{goal.targetAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                         </span>
                       </div>
 
