@@ -22,14 +22,14 @@ body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* ===== APP SHELL ===== */
 .app-shell {
   max-width: 480px;
   margin: 0 auto;
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
   position: relative;
   padding-bottom: 80px;
@@ -577,8 +577,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg);
+  padding: 1.25rem;
 }
 
 .auth-card {
@@ -586,8 +587,8 @@ body {
   max-width: 400px;
   background: var(--surface);
   border-radius: 24px;
-  padding: 2.5rem;
-  margin: 1rem;
+  padding: 2rem;
+  margin: 0;
   box-shadow: 0 10px 40px rgba(0,0,0,0.08);
   animation: fadeUp 0.5s ease;
 }
