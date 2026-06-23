@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Settings, Save, Link as LinkIcon, Copy, Check, Moon, Sun, Lock, DownloadCloud, Target } from 'lucide-react';
+import { Settings, Save, Link as LinkIcon, Copy, Check, Moon, Sun, Lock, DownloadCloud, Target, Bot } from 'lucide-react';
 import { useCurrency } from '../hooks/useCurrency';
 import { useToast } from '../hooks/useToast';
 import { useTransactions } from '../hooks/useTransactions';
 import { useBudgetLimits, CATEGORIES as BUDGET_CATEGORIES } from '../hooks/useBudgetLimits';
+import { useGemini } from '../hooks/useGemini';
 
 export const SettingsTab = () => {
   const { user, updateGoogleSheet } = useAuth();

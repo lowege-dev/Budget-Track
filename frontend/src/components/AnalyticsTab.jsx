@@ -2,35 +2,46 @@ import React, { useState } from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useTransactions } from '../hooks/useTransactions';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, Bot, RefreshCw } from 'lucide-react';
+import { useCurrency } from '../hooks/useCurrency';
+import { useBudgetLimits } from '../hooks/useBudgetLimits';
+import { useGemini } from '../hooks/useGemini';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const CATEGORY_COLORS = { Food: '#f97316', Transport: '#6366f1', Entertainment: '#ec4899', Shopping: '#a855f7', Utilities: '#14b8a6', Salary: '#10b981', Other: '#8395A7' };
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-import { useCurrency } from '../hooks/useCurrency';
-
 export const AnalyticsTab = () => {
   const { data: transactions, isLoading } = useTransactions();
   const [monthOffset, setMonthOffset] = useState(0);
   const { currency } = useCurrency();
+  const { limits } = useBudgetLimits();
+  const { generateInsight, loading, error } = useGemini();
+  const [aiInsight, setAiInsight] = useState('');
+
+  const handleGenerateAiInsight = async () => {
+    const summary = `Total Spent: ${currency}${totalExpense.toFixed(2)}. Categories breakdown: ${Object.entries(cats).map(([k,v]) => `${k}: ${currency}${v}`).join(', ')}. Last Month Spent: ${currency}${lastMonthExpense.toFixed(2)}.`;
+    
+    try {
+      const text = await generateInsight(summary);
+      setAiInsight(text);
+    } catch(e) {
+      console.error(e);
+    }
+  };
 
   if (isLoading) return (
     <div style={{ padding: '0 1.25rem' }}>
-      {/* Month picker skeleton */}
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginBottom: 20 }}>
         <div className="skeleton" style={{ width: 36, height: 36, borderRadius: '50%' }} />
         <div className="skeleton" style={{ width: 140, height: 24, borderRadius: 8 }} />
         <div className="skeleton" style={{ width: 36, height: 36, borderRadius: '50%' }} />
       </div>
-      {/* Donut chart skeleton */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
         <div className="skeleton" style={{ width: 220, height: 220, borderRadius: '50%' }} />
       </div>
-      {/* Info card skeleton */}
       <div className="skeleton" style={{ height: 50, borderRadius: 16, marginBottom: 16 }} />
-      {/* Legend items skeleton */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
         {[1,2,3,4].map(i => (
           <div key={i} className="skeleton" style={{ width: 90, height: 28, borderRadius: 8 }} />
@@ -43,13 +54,22 @@ export const AnalyticsTab = () => {
   const target = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
   const monthName = `${MONTHS[target.getMonth()]} ${target.getFullYear()}`;
 
+  const lastMonthTarget = new Date(now.getFullYear(), now.getMonth() + monthOffset - 1, 1);
+
   const filtered = transactions?.filter(t => {
     const d = new Date(t.date);
     return d.getMonth() === target.getMonth() && d.getFullYear() === target.getFullYear();
   }) || [];
 
+  const lastMonthFiltered = transactions?.filter(t => {
+    const d = new Date(t.date);
+    return d.getMonth() === lastMonthTarget.getMonth() && d.getFullYear() === lastMonthTarget.getFullYear();
+  }) || [];
+
   const expenses = filtered.filter(t => t.amount < 0);
   const totalExpense = expenses.reduce((a, t) => a + Math.abs(t.amount), 0);
+  
+  const lastMonthExpense = lastMonthFiltered.filter(t => t.amount < 0).reduce((a, t) => a + Math.abs(t.amount), 0);
 
   const cats = {};
   expenses.forEach(t => { cats[t.category] = (cats[t.category] || 0) + Math.abs(t.amount); });
@@ -57,6 +77,42 @@ export const AnalyticsTab = () => {
   const labels = Object.keys(cats);
   const values = Object.values(cats);
   const colors = labels.map(c => CATEGORY_COLORS[c] || '#8395A7');
+
+  // GENERATE SMART INSIGHTS
+  const insights = [];
+  
+  if (lastMonthExpense > 0 && totalExpense > 0) {
+    const diff = totalExpense - lastMonthExpense;
+    const pct = Math.abs((diff / lastMonthExpense) * 100).toFixed(0);
+    if (diff > 0) {
+      insights.push({ icon: TrendingUp, color: 'var(--danger)', text: `You've spent ${pct}% more this month compared to last month.` });
+    } else if (diff < 0) {
+      insights.push({ icon: TrendingDown, color: 'var(--success)', text: `Great job! You've spent ${pct}% less this month than last month.` });
+    }
+  }
+
+  if (labels.length > 0) {
+    const topCategory = labels.reduce((a, b) => cats[a] > cats[b] ? a : b);
+    insights.push({ icon: Sparkles, color: 'var(--primary)', text: `Your highest expense is ${topCategory}, making up ${((cats[topCategory]/totalExpense)*100).toFixed(0)}% of your spending.` });
+  }
+
+  let limitExceeded = false;
+  let closeToLimit = false;
+  Object.keys(limits).forEach(cat => {
+    if (limits[cat] > 0 && cats[cat]) {
+      const pct = (cats[cat] / limits[cat]) * 100;
+      if (pct >= 100) limitExceeded = true;
+      else if (pct >= 80) closeToLimit = true;
+    }
+  });
+
+  if (limitExceeded) {
+    insights.push({ icon: AlertTriangle, color: 'var(--danger)', text: `Warning: You have exceeded your budget limit in one or more categories.` });
+  } else if (closeToLimit) {
+    insights.push({ icon: AlertTriangle, color: 'var(--warning)', text: `Careful! You are approaching your budget limit in some categories.` });
+  } else if (Object.keys(limits).length > 0 && labels.length > 0) {
+    insights.push({ icon: CheckCircle2, color: 'var(--success)', text: `You are currently within all your set budget limits. Keep it up!` });
+  }
 
   const data = {
     labels,
@@ -110,21 +166,76 @@ export const AnalyticsTab = () => {
 
   return (
     <>
-      {/* Month Picker */}
       <div className="month-picker">
         <button onClick={() => setMonthOffset(o => o - 1)}><ChevronLeft size={18} /></button>
         <span>{monthName}</span>
         <button onClick={() => setMonthOffset(o => o + 1)}><ChevronRight size={18} /></button>
       </div>
 
-      {/* Info */}
       <div className="card" style={{ margin: '0 1.25rem 0.75rem', textAlign: 'center' }}>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
           You have spent <strong style={{ color: 'var(--accent)' }}>{currency}{totalExpense.toLocaleString()}</strong> this month
         </p>
       </div>
 
-      {/* Donut Chart */}
+      {insights.length > 0 && (
+        <>
+          <div className="section-header" style={{ paddingBottom: '0.5rem' }}>
+            <span className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Sparkles size={18} color="var(--primary)" /> Smart Insights
+            </span>
+          </div>
+          <div className="card" style={{ margin: '0 1.25rem 0.75rem', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            {insights.map((insight, idx) => {
+              const Icon = insight.icon;
+              return (
+                <div key={idx} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                  <div style={{ background: `${insight.color}15`, color: insight.color, padding: '0.4rem', borderRadius: '8px', flexShrink: 0 }}>
+                    <Icon size={16} />
+                  </div>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text)', lineHeight: 1.4, margin: 0, marginTop: '0.15rem' }}>
+                    {insight.text}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* Gemini AI Advisor */}
+      <div className="section-header" style={{ paddingBottom: '0.5rem', marginTop: '1rem' }}>
+        <span className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <Bot size={18} color="var(--primary)" /> Gemini AI Advisor
+        </span>
+      </div>
+      <div className="card" style={{ margin: '0 1.25rem 0.75rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {!aiInsight && !loading && (
+          <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <p style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>Ask Gemini to analyze your monthly spending and give you personalized financial advice.</p>
+            <button onClick={handleGenerateAiInsight} className="submit-btn" style={{ background: 'var(--primary)', margin: '0 auto', display: 'inline-flex', width: 'auto', padding: '0.6rem 1.2rem', gap: '0.5rem' }}>
+              <Sparkles size={16} /> Generate AI Insight
+            </button>
+          </div>
+        )}
+        {loading && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--primary)', padding: '1rem 0' }}>
+            <RefreshCw size={18} /> Analyzing your finances...
+          </div>
+        )}
+        {aiInsight && !loading && (
+          <div>
+            <p style={{ fontSize: '0.95rem', lineHeight: 1.5, margin: 0, color: 'var(--text)', fontStyle: 'italic' }}>
+              "{aiInsight}"
+            </p>
+            <button onClick={handleGenerateAiInsight} style={{ background: 'transparent', border: 'none', color: 'var(--primary)', fontSize: '0.8rem', marginTop: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.2rem', padding: 0 }}>
+              <RefreshCw size={12} /> Regenerate
+            </button>
+          </div>
+        )}
+        {error && <p style={{ color: 'var(--danger)', fontSize: '0.85rem', margin: 0, marginTop: '0.5rem', textAlign: 'center' }}>{error}</p>}
+      </div>
+
       <div className="section-header">
         <span className="section-title">Analytics</span>
       </div>
