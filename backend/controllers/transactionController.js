@@ -3,7 +3,7 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 const { JWT } = require('google-auth-library');
 
 // Helper to push to Google Sheets
-const pushToGoogleSheet = async (transaction) => {
+const pushToGoogleSheet = async (transaction, user) => {
   try {
     if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) return;
     
@@ -15,7 +15,17 @@ const pushToGoogleSheet = async (transaction) => {
 
     const doc = new GoogleSpreadsheet('1DMQVxMCth29CfRfVQC4-mPD-gUKB5th7gN5j25CrnxE', serviceAccountAuth);
     await doc.loadInfo(); 
-    const sheet = doc.sheetsByIndex[0]; 
+    
+    // Look for a tab with the user's name
+    let sheet = doc.sheetsByTitle[user.name]; 
+    
+    // If the tab doesn't exist yet, automatically create it!
+    if (!sheet) {
+      sheet = await doc.addSheet({ 
+        title: user.name, 
+        headerValues: ['Date', 'Type', 'Category', 'Amount', 'Notes'] 
+      });
+    }
     
     await sheet.addRow({
       Date: new Date(transaction.createdAt || Date.now()).toLocaleDateString(),
@@ -60,7 +70,7 @@ exports.addTransaction = async (req, res) => {
     const transaction = await Transaction.create(req.body);
     
     // Background task: push to Google Sheets (we don't await so it doesn't slow down the user)
-    pushToGoogleSheet(transaction);
+    pushToGoogleSheet(transaction, req.user);
 
     return res.status(201).json({
       success: true,
