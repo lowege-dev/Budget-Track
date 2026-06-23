@@ -11,7 +11,46 @@ import { SettingsTab } from './components/SettingsTab'
 import { NotesTab } from './components/NotesTab'
 import { WealthTab } from './components/WealthTab'
 import { useNotes } from './hooks/useNotes'
-import { Home, PieChart, PlusCircle, BarChart3, LogOut, Printer, Wallet, Lock, Settings, BookOpen, Target } from 'lucide-react'
+import { useRegisterSW } from 'virtual:pwa-register/react'
+import { Home, PieChart, PlusCircle, BarChart3, LogOut, Printer, Wallet, Lock, Settings, BookOpen, Target, DownloadCloud } from 'lucide-react'
+
+function ReloadPrompt() {
+  const {
+    needRefresh: [needRefresh, setNeedRefresh],
+    updateServiceWorker,
+  } = useRegisterSW({
+    onRegistered(r) {
+      console.log('SW Registered');
+    },
+    onRegisterError(error) {
+      console.log('SW registration error', error);
+    },
+  });
+
+  if (!needRefresh) return null;
+
+  return (
+    <div style={{
+      position: 'fixed', bottom: '90px', left: '50%', transform: 'translateX(-50%)',
+      background: 'var(--surface)', border: '1px solid var(--border)',
+      padding: '1.25rem', borderRadius: '18px', zIndex: 9999,
+      boxShadow: '0 10px 40px rgba(0,0,0,0.15)', width: '90%', maxWidth: '380px',
+      display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center'
+    }}>
+      <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: '0.5rem' }}>
+        <DownloadCloud size={24} />
+      </div>
+      <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--text)' }}>Update Available</div>
+      <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', textAlign: 'center', marginBottom: '0.75rem' }}>
+        A new version of the app is ready. Refresh to apply changes!
+      </div>
+      <div style={{ display: 'flex', gap: '0.75rem', width: '100%' }}>
+        <button onClick={() => setNeedRefresh(false)} className="btn" style={{ flex: 1, padding: '0.7rem' }}>Later</button>
+        <button onClick={() => updateServiceWorker(true)} className="btn btn-primary" style={{ flex: 1, padding: '0.7rem' }}>Update Now</button>
+      </div>
+    </div>
+  );
+}
 
 const AuthScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -148,6 +187,7 @@ function App() {
           </button>
         </div>
       </div>
+      <ReloadPrompt />
     </PinLock>
   )
 }
