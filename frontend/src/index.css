@@ -896,3 +896,40 @@ body {
     max-width: 1000px;
   }
 }
+
+/* ===== BUTTONS ===== */
+.btn {
+  padding: 0.65rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: var(--bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white !important;
+  border: none;
+  box-shadow: 0 4px 15px rgba(108,92,231,0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(108,92,231,0.35);
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+}

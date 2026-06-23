@@ -9,8 +9,9 @@ import { AnalyticsTab } from './components/AnalyticsTab'
 import { AddTab } from './components/AddTab'
 import { SettingsTab } from './components/SettingsTab'
 import { NotesTab } from './components/NotesTab'
+import { WealthTab } from './components/WealthTab'
 import { useNotes } from './hooks/useNotes'
-import { Home, PieChart, PlusCircle, BarChart3, LogOut, Printer, Wallet, Lock, Settings, BookOpen } from 'lucide-react'
+import { Home, PieChart, PlusCircle, BarChart3, LogOut, Printer, Wallet, Lock, Settings, BookOpen, Target } from 'lucide-react'
 
 const AuthScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -59,6 +60,9 @@ function App() {
         <button className={`side-nav-item ${activeTab === 'add' ? 'active' : ''}`} onClick={() => setActiveTab('add')}>
           <PlusCircle size={20} /> Add Transaction
         </button>
+        <button className={`side-nav-item ${activeTab === 'wealth' ? 'active' : ''}`} onClick={() => setActiveTab('wealth')}>
+          <Target size={20} /> Wealth
+        </button>
         <button className={`side-nav-item ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
           <PieChart size={20} /> Analytics
         </button>
@@ -89,6 +93,7 @@ function App() {
                 {activeTab === 'home' && 'Home'}
                 {activeTab === 'expenses' && 'Expenses'}
                 {activeTab === 'notes' && 'My Diary'}
+                {activeTab === 'wealth' && 'Wealth & Goals'}
                 {activeTab === 'analytics' && 'Analytics'}
                 {activeTab === 'add' && 'New Transaction'}
                 {activeTab === 'settings' && 'Settings'}
@@ -98,7 +103,7 @@ function App() {
           </div>
           <div className="top-bar-right">
             <button className="icon-btn" onClick={() => window.dispatchEvent(new Event('lock-app'))} title="Lock App"><Lock size={18} /></button>
-            <button className="icon-btn" onClick={() => window.print()} title="Print"><Printer size={18} /></button>
+            <button className="icon-btn" onClick={() => setActiveTab('settings')} title="Settings"><Settings size={18} /></button>
             <button className="icon-btn" onClick={logout} title="Logout"><LogOut size={18} /></button>
           </div>
         </div>
@@ -108,6 +113,7 @@ function App() {
           {activeTab === 'home' && <HomeTab />}
           {activeTab === 'expenses' && <ExpensesTab />}
           {activeTab === 'notes' && <NotesTab />}
+          {activeTab === 'wealth' && <WealthTab />}
           {activeTab === 'analytics' && <AnalyticsTab />}
           {activeTab === 'add' && <AddTab onDone={() => setActiveTab('home')} />}
           {activeTab === 'settings' && <SettingsTab />}
@@ -135,15 +141,10 @@ function App() {
             <span>Add</span>
             {activeTab === 'add' && <div className="nav-dot" />}
           </button>
-          <button className={`nav-item ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
-            <PieChart size={22} />
-            <span>Analytics</span>
-            {activeTab === 'analytics' && <div className="nav-dot" />}
-          </button>
-          <button className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
-            <Settings size={22} />
-            <span>Settings</span>
-            {activeTab === 'settings' && <div className="nav-dot" />}
+          <button className={`nav-item ${activeTab === 'wealth' ? 'active' : ''}`} onClick={() => setActiveTab('wealth')}>
+            <Target size={22} />
+            <span>Wealth</span>
+            {activeTab === 'wealth' && <div className="nav-dot" />}
           </button>
         </div>
       </div>
