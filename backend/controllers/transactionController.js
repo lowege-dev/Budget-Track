@@ -1,4 +1,33 @@
 const Transaction = require('../models/Transaction');
+const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { JWT } = require('google-auth-library');
+
+// Helper to push to Google Sheets
+const pushToGoogleSheet = async (transaction) => {
+  try {
+    if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) return;
+    
+    const serviceAccountAuth = new JWT({
+      email: process.env.GOOGLE_CLIENT_EMAIL,
+      key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+
+    const doc = new GoogleSpreadsheet('1DMQVxMCTh29CfRfVQC4-mPD-gUKB5th7gN5j2SCrnxE', serviceAccountAuth);
+    await doc.loadInfo(); 
+    const sheet = doc.sheetsByIndex[0]; 
+    
+    await sheet.addRow({
+      Date: new Date(transaction.createdAt || Date.now()).toLocaleDateString(),
+      Type: transaction.amount > 0 ? 'Income' : 'Expense',
+      Category: transaction.category || 'N/A',
+      Amount: Math.abs(transaction.amount),
+      Notes: transaction.text || ''
+    });
+  } catch (err) {
+    console.error("Failed to push to Google Sheets:", err);
+  }
+};
 
 // @desc    Get all transactions
 // @route   GET /api/transactions
@@ -29,6 +58,9 @@ exports.addTransaction = async (req, res) => {
     req.body.user = req.user.id;
 
     const transaction = await Transaction.create(req.body);
+    
+    // Background task: push to Google Sheets (we don't await so it doesn't slow down the user)
+    pushToGoogleSheet(transaction);
 
     return res.status(201).json({
       success: true,

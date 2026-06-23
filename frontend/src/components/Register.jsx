@@ -91,6 +91,12 @@ export const Register = ({ onSwitchToLogin }) => {
               setError('Google registration failed');
             }}
             useOneTap
+            theme="filled_black"
+            size="large"
+            shape="rectangular"
+            text="continue_with"
+            locale="en"
+            width="320"
           />
         </div>
 
