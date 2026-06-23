@@ -8,6 +8,11 @@
     <meta name="description" content="Budget Track — Master your finances with ease. Track income, expenses, and savings with a beautiful, secure dashboard." />
     <meta name="theme-color" content="#6366f1" />
     <link rel="manifest" href="/manifest.json" />
+    <script>
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    </script>
     <title>Budget Track — Financial Dashboard</title>
   </head>
   <body>

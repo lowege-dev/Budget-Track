@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const transactionRoutes = require('./routes/transactions');
 const accountRoutes = require('./routes/accounts');
 const authRoutes = require('./routes/auth');
+const noteRoutes = require('./routes/notes');
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/notes', noteRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/budget-track')

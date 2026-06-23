@@ -9,6 +9,7 @@ export const AddTab = ({ onDone }) => {
   const [category, setCategory] = useState('Food');
   const [type, setType] = useState('expense');
   const [accountId, setAccountId] = useState('');
+  const [notes, setNotes] = useState('');
   const [success, setSuccess] = useState(false);
 
   const { data: accounts } = useAccounts();
@@ -21,12 +22,14 @@ export const AddTab = ({ onDone }) => {
       amount: type === 'expense' ? -Math.abs(+amount) : Math.abs(+amount),
       category,
       type,
+      notes,
       account: accountId || null,
       tags: []
     }, {
       onSuccess: () => {
         setText('');
         setAmount('');
+        setNotes('');
         setSuccess(true);
         setTimeout(() => { setSuccess(false); onDone(); }, 1200);
       }
@@ -76,6 +79,18 @@ export const AddTab = ({ onDone }) => {
               <option value="Other">Other</option>
             </select>
           </div>
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Notes (Optional)</label>
+          <textarea 
+            className="form-input" 
+            rows="2" 
+            value={notes} 
+            onChange={e => setNotes(e.target.value)} 
+            placeholder="Add extra details..." 
+            style={{ resize: 'none' }}
+          ></textarea>
         </div>
 
         {accounts && accounts.length > 0 && (

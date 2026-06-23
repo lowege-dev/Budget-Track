@@ -24,7 +24,7 @@ const pushToGoogleSheet = async (transaction, user) => {
     if (!sheet) {
       sheet = await doc.addSheet({ 
         title: user.name, 
-        headerValues: ['Date', 'Type', 'Category', 'Amount', 'Notes'] 
+        headerValues: ['Date', 'Type', 'Category', 'Description', 'Amount', 'Notes'] 
       });
     }
     
@@ -32,8 +32,9 @@ const pushToGoogleSheet = async (transaction, user) => {
       Date: new Date(transaction.createdAt || Date.now()).toLocaleDateString(),
       Type: transaction.amount > 0 ? 'Income' : 'Expense',
       Category: transaction.category || 'N/A',
+      Description: transaction.text || '',
       Amount: Math.abs(transaction.amount),
-      Notes: transaction.text || ''
+      Notes: transaction.notes || ''
     });
   } catch (err) {
     console.error("Failed to push to Google Sheets:", err);

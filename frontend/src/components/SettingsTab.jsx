@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Settings, Save, Link as LinkIcon, Copy, Check } from 'lucide-react';
+import { Settings, Save, Link as LinkIcon, Copy, Check, Moon, Sun, Lock } from 'lucide-react';
 
 export const SettingsTab = () => {
   const { user, updateGoogleSheet } = useAuth();
@@ -8,6 +8,17 @@ export const SettingsTab = () => {
   const [status, setStatus] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(localStorage.getItem('theme') === 'dark');
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
 
   const ROBOT_EMAIL = 'sheet-sync-robot@budget-tracker-500302.iam.gserviceaccount.com';
 
@@ -39,6 +50,41 @@ export const SettingsTab = () => {
         <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
           <Settings size={24} color="var(--primary)" /> App Settings
         </h2>
+
+        <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {isDarkMode ? <Moon size={20} color="var(--primary)" /> : <Sun size={20} color="var(--accent)" />}
+            <span style={{ fontWeight: 600 }}>Dark Mode</span>
+          </div>
+          <button 
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            style={{ 
+              width: '50px', height: '28px', borderRadius: '14px', border: 'none', 
+              background: isDarkMode ? 'var(--primary)' : 'var(--border)', 
+              position: 'relative', cursor: 'pointer', transition: 'background 0.3s' 
+            }}
+          >
+            <div style={{ 
+              width: '22px', height: '22px', borderRadius: '50%', background: 'white', 
+              position: 'absolute', top: '3px', left: isDarkMode ? '25px' : '3px', 
+              transition: 'left 0.3s', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' 
+            }} />
+          </button>
+        </div>
+
+        <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Lock size={20} color="var(--primary)" />
+            <span style={{ fontWeight: 600 }}>App PIN Lock</span>
+          </div>
+          <button 
+            onClick={() => window.dispatchEvent(new Event('lock-app'))}
+            className="submit-btn"
+            style={{ padding: '0.5rem 1rem', width: 'auto', margin: 0, fontSize: '0.85rem', boxShadow: 'none' }}
+          >
+            Manage PIN
+          </button>
+        </div>
         
         <div style={{ marginBottom: '2rem' }}>
           <h3>Personal Google Sheet Sync</h3>

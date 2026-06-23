@@ -8,7 +8,8 @@ import { ExpensesTab } from './components/ExpensesTab'
 import { AnalyticsTab } from './components/AnalyticsTab'
 import { AddTab } from './components/AddTab'
 import { SettingsTab } from './components/SettingsTab'
-import { Home, PieChart, PlusCircle, BarChart3, LogOut, Printer, Wallet, Lock, Settings } from 'lucide-react'
+import { NotesTab } from './components/NotesTab'
+import { Home, PieChart, PlusCircle, BarChart3, LogOut, Printer, Wallet, Lock, Settings, BookOpen } from 'lucide-react'
 
 const AuthScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -48,6 +49,9 @@ function App() {
         <button className={`side-nav-item ${activeTab === 'expenses' ? 'active' : ''}`} onClick={() => setActiveTab('expenses')}>
           <BarChart3 size={20} /> Expenses
         </button>
+        <button className={`side-nav-item ${activeTab === 'notes' ? 'active' : ''}`} onClick={() => setActiveTab('notes')}>
+          <BookOpen size={20} /> Diary
+        </button>
         <button className={`side-nav-item ${activeTab === 'add' ? 'active' : ''}`} onClick={() => setActiveTab('add')}>
           <PlusCircle size={20} /> Add Transaction
         </button>
@@ -80,6 +84,7 @@ function App() {
               <div className="top-bar-title">
                 {activeTab === 'home' && 'Home'}
                 {activeTab === 'expenses' && 'Expenses'}
+                {activeTab === 'notes' && 'My Diary'}
                 {activeTab === 'analytics' && 'Analytics'}
                 {activeTab === 'add' && 'New Transaction'}
                 {activeTab === 'settings' && 'Settings'}
@@ -98,6 +103,7 @@ function App() {
         <div className="tab-content-area">
           {activeTab === 'home' && <HomeTab />}
           {activeTab === 'expenses' && <ExpensesTab />}
+          {activeTab === 'notes' && <NotesTab />}
           {activeTab === 'analytics' && <AnalyticsTab />}
           {activeTab === 'add' && <AddTab onDone={() => setActiveTab('home')} />}
           {activeTab === 'settings' && <SettingsTab />}
@@ -114,6 +120,11 @@ function App() {
             <BarChart3 size={22} />
             <span>Expenses</span>
             {activeTab === 'expenses' && <div className="nav-dot" />}
+          </button>
+          <button className={`nav-item ${activeTab === 'notes' ? 'active' : ''}`} onClick={() => setActiveTab('notes')}>
+            <BookOpen size={22} />
+            <span>Diary</span>
+            {activeTab === 'notes' && <div className="nav-dot" />}
           </button>
           <button className={`nav-item ${activeTab === 'add' ? 'active' : ''}`} onClick={() => setActiveTab('add')}>
             <PlusCircle size={26} />
