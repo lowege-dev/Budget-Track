@@ -17,6 +17,11 @@ const deleteTransaction = async (id) => {
   return id;
 };
 
+const updateTransaction = async ({ id, updates }) => {
+  const { data } = await axios.put(`/api/transactions/${id}`, updates);
+  return data.data;
+};
+
 // Custom Hooks for strict data fetching rules
 export const useTransactions = () => {
   return useQuery({
@@ -43,6 +48,17 @@ export const useDeleteTransaction = () => {
 
   return useMutation({
     mutationFn: deleteTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    },
+  });
+};
+
+export const useUpdateTransaction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
     },

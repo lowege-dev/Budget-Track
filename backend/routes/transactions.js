@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getTransactions, addTransaction, deleteTransaction } = require('../controllers/transactionController');
+const { getTransactions, addTransaction, deleteTransaction, updateTransaction } = require('../controllers/transactionController');
 const { protect } = require('../middleware/auth');
 
 router
@@ -10,6 +10,7 @@ router
 
 router
   .route('/:id')
+  .put(protect, updateTransaction)
   .delete(protect, deleteTransaction);
 
 module.exports = router;

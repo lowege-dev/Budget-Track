@@ -317,12 +317,11 @@ body {
   color: var(--text-secondary);
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  opacity: 0;
+  opacity: 0.8;
   transition: all 0.2s;
 }
 
-.txn-item:hover .txn-delete { opacity: 1; }
-.txn-delete:hover { background: #ffeaea; color: var(--danger); }
+.txn-delete:hover { opacity: 1; background: #ffeaea; color: var(--danger); }
 
 /* ===== EXPENSE BREAKDOWN ===== */
 .expense-item {
@@ -776,6 +775,7 @@ body {
     font-weight: 700;
     background: linear-gradient(135deg, var(--primary), var(--accent));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
