@@ -76,13 +76,16 @@ export const DashboardChart = () => {
     id: 'centerText',
     afterDraw(chart) {
       const { ctx, width, height } = chart;
+      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#f8fafc';
+      const textSecondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#94a3b8';
+
       ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#f8fafc';
+      ctx.fillStyle = textColor;
       ctx.font = "600 1.4rem 'Outfit', sans-serif";
       ctx.fillText(`$${totalExpenses.toFixed(0)}`, width / 2, height / 2 - 8);
-      ctx.fillStyle = '#94a3b8';
+      ctx.fillStyle = textSecondaryColor;
       ctx.font = "400 0.8rem 'Outfit', sans-serif";
       ctx.fillText('Total Spent', width / 2, height / 2 + 16);
       ctx.restore();

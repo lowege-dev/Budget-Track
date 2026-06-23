@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Settings, Save, Link as LinkIcon, Copy, Check, Moon, Sun, Lock } from 'lucide-react';
+import { Settings, Save, Link as LinkIcon, Copy, Check, Moon, Sun, Lock, DownloadCloud, Target } from 'lucide-react';
 import { useCurrency } from '../hooks/useCurrency';
 import { useToast } from '../hooks/useToast';
+import { useTransactions } from '../hooks/useTransactions';
+import { useBudgetLimits, CATEGORIES as BUDGET_CATEGORIES } from '../hooks/useBudgetLimits';
 
 export const SettingsTab = () => {
   const { user, updateGoogleSheet } = useAuth();
@@ -13,6 +15,8 @@ export const SettingsTab = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(localStorage.getItem('theme') === 'dark');
+  const { data: transactions } = useTransactions();
+  const { limits, updateLimit } = useBudgetLimits();
 
   useEffect(() => {
     if (isDarkMode) {
@@ -55,6 +59,35 @@ export const SettingsTab = () => {
     
     setIsSaving(false);
     setTimeout(() => setStatus(''), 3000);
+  };
+
+  const handleExportCSV = () => {
+    if (!transactions || transactions.length === 0) {
+      toast('No transactions to export', 'error');
+      return;
+    }
+    
+    const headers = ['Date', 'Name', 'Category', 'Amount', 'Notes'];
+    const rows = transactions.map(t => [
+      new Date(t.date).toLocaleDateString(),
+      `"${t.text}"`,
+      `"${t.category}"`,
+      t.amount,
+      `"${t.notes || ''}"`
+    ]);
+    
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(',') + "\n" 
+      + rows.map(e => e.join(",")).join("\n");
+      
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "budget_track_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast('Exported successfully!', 'success');
   };
 
   return (
@@ -168,6 +201,45 @@ export const SettingsTab = () => {
             )}
           </form>
         </div>
+
+        <div style={{ marginBottom: '2rem' }}>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+            <DownloadCloud size={20} color="var(--primary)" /> Export Data
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+            Download all your recorded transactions as a CSV file.
+          </p>
+          <button onClick={handleExportCSV} className="submit-btn" style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' }}>
+            <DownloadCloud size={20} /> Export as CSV
+          </button>
+        </div>
+
+        <div style={{ marginBottom: '2rem' }}>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+            <Target size={20} color="var(--primary)" /> Budget Limits
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+            Set a monthly spending limit for each category. Set to 0 to remove the limit.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {BUDGET_CATEGORIES.map(cat => (
+              <div key={cat} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-secondary)', padding: '0.75rem 1rem', borderRadius: '12px' }}>
+                <span style={{ fontWeight: 600 }}>{cat}</span>
+                <div style={{ display: 'flex', alignItems: 'center', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', padding: '0 0.5rem', width: '120px' }}>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginRight: '0.2rem' }}>{currency}</span>
+                  <input 
+                    type="number" 
+                    value={limits[cat] || ''} 
+                    onChange={e => updateLimit(cat, e.target.value)}
+                    placeholder="0"
+                    style={{ flex: 1, border: 'none', background: 'transparent', color: 'var(--text)', outline: 'none', width: '100%', fontSize: '0.95rem', fontWeight: 600, padding: '0.4rem 0' }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );

@@ -8,11 +8,13 @@ const CATEGORY_COLORS = { Food: '#f97316', Transport: '#6366f1', Entertainment: 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 import { useCurrency } from '../hooks/useCurrency';
+import { useBudgetLimits } from '../hooks/useBudgetLimits';
 
 export const ExpensesTab = () => {
   const { data: transactions, isLoading } = useTransactions();
   const [monthOffset, setMonthOffset] = useState(0);
   const { currency } = useCurrency();
+  const { limits } = useBudgetLimits();
 
   if (isLoading) return (
     <div style={{ padding: '0 1.25rem' }}>
@@ -91,7 +93,24 @@ export const ExpensesTab = () => {
           </p>
         )}
         {sorted.map(([cat, amount]) => {
-          const pct = totalExpense > 0 ? ((amount / totalExpense) * 100).toFixed(0) : 0;
+          const limit = limits[cat];
+          let barPct = 0;
+          let pctStr = '';
+          let barColor = CATEGORY_COLORS[cat] || '#8395A7';
+          let limitWarning = false;
+
+          if (limit > 0) {
+            barPct = Math.min((amount / limit) * 100, 100);
+            pctStr = `${Math.round((amount / limit) * 100)}%`;
+            if (amount >= limit) {
+              barColor = 'var(--danger)';
+              limitWarning = true;
+            }
+          } else {
+            barPct = totalExpense > 0 ? (amount / totalExpense) * 100 : 0;
+            pctStr = `${Math.round(barPct)}%`;
+          }
+
           const Icon = CATEGORY_ICONS[cat] || MoreHorizontal;
           const color = CATEGORY_COLORS[cat] || '#8395A7';
 
@@ -101,14 +120,21 @@ export const ExpensesTab = () => {
                 <Icon size={18} />
               </div>
               <div className="expense-info">
-                <div className="expense-name">{cat}</div>
+                <div className="expense-name" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>{cat}</span>
+                  {limit > 0 && (
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                      Limit: {currency}{limit.toLocaleString()}
+                    </span>
+                  )}
+                </div>
                 <div className="expense-bar-track">
-                  <div className="expense-bar-fill" style={{ width: `${pct}%`, background: color }}></div>
+                  <div className="expense-bar-fill" style={{ width: `${barPct}%`, background: barColor }}></div>
                 </div>
               </div>
               <div className="expense-meta">
-                <div className="expense-amount">{currency}{amount.toLocaleString()}</div>
-                <div className="expense-pct">{pct}%</div>
+                <div className="expense-amount" style={{ color: limitWarning ? 'var(--danger)' : 'inherit' }}>{currency}{amount.toLocaleString()}</div>
+                <div className="expense-pct">{limit > 0 ? 'of limit' : 'of total'}</div>
               </div>
             </div>
           );

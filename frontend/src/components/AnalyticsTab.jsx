@@ -92,13 +92,16 @@ export const AnalyticsTab = () => {
     id: 'centerText',
     afterDraw(chart) {
       const { ctx, width, height } = chart;
+      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#2D3436';
+      const textSecondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#8395A7';
+      
       ctx.save();
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#2D3436';
+      ctx.fillStyle = textColor;
       ctx.font = "700 1.3rem 'Outfit', sans-serif";
       ctx.fillText(`${currency}${totalExpense.toFixed(0)}`, width / 2, height / 2 - 8);
-      ctx.fillStyle = '#8395A7';
+      ctx.fillStyle = textSecondaryColor;
       ctx.font = "400 0.75rem 'Outfit', sans-serif";
       ctx.fillText('Total Spent', width / 2, height / 2 + 14);
       ctx.restore();
