@@ -3,6 +3,7 @@ import { useTransactions } from '../hooks/useTransactions';
 import { TrendingUp, TrendingDown, Utensils, Car, Gamepad2, ShoppingBag, Zap, Briefcase, MoreHorizontal, Trash2, Search } from 'lucide-react';
 import { useDeleteTransaction, useUpdateTransaction } from '../hooks/useTransactions';
 import { useCurrency } from '../hooks/useCurrency';
+import { useToast } from '../hooks/useToast';
 
 const CATEGORY_ICONS = { Food: Utensils, Transport: Car, Entertainment: Gamepad2, Shopping: ShoppingBag, Utilities: Zap, Salary: Briefcase, Other: MoreHorizontal };
 const CATEGORY_COLORS = { Food: '#f97316', Transport: '#6366f1', Entertainment: '#ec4899', Shopping: '#a855f7', Utilities: '#14b8a6', Salary: '#10b981', Other: '#8395A7' };
@@ -11,6 +12,7 @@ const CATEGORIES = Object.keys(CATEGORY_ICONS);
 const TxnItem = ({ t, currency }) => {
   const { mutate: del, isPending: isDeleting } = useDeleteTransaction();
   const { mutate: update, isPending: isUpdating } = useUpdateTransaction();
+  const { toast } = useToast();
   const Icon = CATEGORY_ICONS[t.category] || MoreHorizontal;
   const color = CATEGORY_COLORS[t.category] || '#8395A7';
   const isPositive = t.amount >= 0;
@@ -23,7 +25,8 @@ const TxnItem = ({ t, currency }) => {
   const handleSave = () => {
     const finalAmount = isPositive ? Math.abs(editAmount) : -Math.abs(editAmount);
     update({ id: t._id, updates: { text: editText, amount: finalAmount, category: editCategory } }, {
-      onSuccess: () => setIsEditing(false)
+      onSuccess: () => { setIsEditing(false); toast('Transaction updated successfully!', 'success'); },
+      onError: () => toast('Failed to update transaction', 'error'),
     });
   };
 
@@ -100,7 +103,7 @@ const TxnItem = ({ t, currency }) => {
         <button className="txn-delete" onClick={() => setIsEditing(true)} disabled={isDeleting} style={{ background: 'transparent', color: 'var(--text-secondary)' }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
         </button>
-        <button className="txn-delete" onClick={() => del(t._id)} disabled={isDeleting}>
+        <button className="txn-delete" onClick={() => del(t._id, { onSuccess: () => toast('Transaction deleted', 'info'), onError: () => toast('Failed to delete', 'error') })} disabled={isDeleting}>
           <Trash2 size={15} />
         </button>
       </div>
@@ -115,9 +118,31 @@ export const HomeTab = () => {
 
   if (isLoading) return (
     <div style={{ padding: '0 1.25rem' }}>
-      <div className="skeleton" style={{ height: 160, marginBottom: 12 }}></div>
-      <div className="skeleton" style={{ height: 70, marginBottom: 8 }}></div>
-      <div className="skeleton" style={{ height: 70, marginBottom: 8 }}></div>
+      {/* Balance card skeleton */}
+      <div className="skeleton" style={{ height: 160, borderRadius: 22, marginBottom: 16 }} />
+      {/* Summary row skeleton */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+        <div className="skeleton" style={{ flex: 1, height: 80, borderRadius: 16 }} />
+        <div className="skeleton" style={{ flex: 1, height: 80, borderRadius: 16 }} />
+      </div>
+      {/* Section header skeleton */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div className="skeleton" style={{ width: 150, height: 20, borderRadius: 8 }} />
+        <div className="skeleton" style={{ width: 50, height: 20, borderRadius: 8 }} />
+      </div>
+      {/* Search bar skeleton */}
+      <div className="skeleton" style={{ height: 44, borderRadius: 12, marginBottom: 16 }} />
+      {/* Transaction item skeletons */}
+      {[1,2,3,4].map(i => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          <div className="skeleton" style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div className="skeleton" style={{ width: '60%', height: 14, borderRadius: 6, marginBottom: 6 }} />
+            <div className="skeleton" style={{ width: '35%', height: 12, borderRadius: 6 }} />
+          </div>
+          <div className="skeleton" style={{ width: 60, height: 16, borderRadius: 6 }} />
+        </div>
+      ))}
     </div>
   );
 

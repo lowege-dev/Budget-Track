@@ -19,6 +19,8 @@ const queryClient = new QueryClient()
 
 import { GoogleOAuthProvider } from '@react-oauth/google'
 
+import { ToastProvider } from './hooks/useToast.jsx'
+
 const GOOGLE_CLIENT_ID = '967279769061-gd9j9e1hn55bs7e0ibkkjl55cc5rkfc5.apps.googleusercontent.com'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -26,7 +28,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <App />
+          <ToastProvider>
+            <App />
+          </ToastProvider>
         </AuthProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>

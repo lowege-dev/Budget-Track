@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNotes, useAddNote, useDeleteNote, useEditNote } from '../hooks/useNotes';
 import { BookOpen, PlusCircle, Trash2, Lock, Unlock, ChevronLeft, Edit2, Save } from 'lucide-react';
+import { useToast } from '../hooks/useToast';
 
 export const NotesTab = () => {
   const { data: notes, isLoading } = useNotes();
   const { mutate: addNote, isPending: isAdding } = useAddNote();
   const { mutate: deleteNote } = useDeleteNote();
   const { mutate: editNote, isPending: isEditing } = useEditNote();
+  const { toast } = useToast();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -32,11 +34,13 @@ export const NotesTab = () => {
     if (!title || !content) return;
     addNote({ title, content, isLocked }, {
       onSuccess: () => {
+        toast('Diary entry saved!', 'success');
         setTitle('');
         setContent('');
         setIsLocked(false);
         setIsFormOpen(false);
-      }
+      },
+      onError: () => toast('Failed to save entry', 'error'),
     });
   };
 
@@ -53,7 +57,25 @@ export const NotesTab = () => {
     }
   }, [guessPin, appPin, unlockPromptNote]);
 
-  if (isLoading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading diary...</div>;
+  if (isLoading) return (
+    <div className="tab-container" style={{ padding: '0 1.25rem' }}>
+      {/* Section header skeleton */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div className="skeleton" style={{ width: 160, height: 22, borderRadius: 8 }} />
+        <div className="skeleton" style={{ width: 90, height: 18, borderRadius: 8 }} />
+      </div>
+      {/* Note card skeletons */}
+      {[1,2,3].map(i => (
+        <div key={i} style={{ background: 'var(--surface)', borderRadius: 18, padding: '1.25rem', border: '1px solid var(--border)', marginBottom: 14 }}>
+          <div className="skeleton" style={{ width: '55%', height: 18, borderRadius: 6, marginBottom: 8 }} />
+          <div className="skeleton" style={{ width: '40%', height: 12, borderRadius: 6, marginBottom: 14 }} />
+          <div className="skeleton" style={{ width: '100%', height: 14, borderRadius: 6, marginBottom: 6 }} />
+          <div className="skeleton" style={{ width: '85%', height: 14, borderRadius: 6, marginBottom: 6 }} />
+          <div className="skeleton" style={{ width: '60%', height: 14, borderRadius: 6 }} />
+        </div>
+      ))}
+    </div>
+  );
 
   if (unlockPromptNote) {
     return (
@@ -117,7 +139,9 @@ export const NotesTab = () => {
                   onSuccess: (updatedNote) => {
                     setActiveNote(updatedNote);
                     setIsEditMode(false);
-                  }
+                    toast('Entry updated!', 'success');
+                  },
+                  onError: () => toast('Failed to update entry', 'error'),
                 });
               }}
               disabled={isEditing}
@@ -130,7 +154,7 @@ export const NotesTab = () => {
               <button onClick={() => setIsEditMode(true)} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer' }}>
                  <Edit2 size={20} />
               </button>
-              <button onClick={() => { if(window.confirm('Delete entry?')) { deleteNote(activeNote._id); setActiveNote(null); } }} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer' }}>
+              <button onClick={() => { if(window.confirm('Delete entry?')) { deleteNote(activeNote._id, { onSuccess: () => toast('Entry deleted', 'info'), onError: () => toast('Failed to delete entry', 'error') }); setActiveNote(null); } }} style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer' }}>
                  <Trash2 size={20} />
               </button>
             </>

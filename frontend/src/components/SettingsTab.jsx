@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Settings, Save, Link as LinkIcon, Copy, Check, Moon, Sun, Lock } from 'lucide-react';
 import { useCurrency } from '../hooks/useCurrency';
+import { useToast } from '../hooks/useToast';
 
 export const SettingsTab = () => {
   const { user, updateGoogleSheet } = useAuth();
   const { currency, setCurrency, CURRENCIES } = useCurrency();
+  const { toast } = useToast();
   const [sheetUrl, setSheetUrl] = useState(user?.googleSheetId || '');
   const [status, setStatus] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -24,9 +26,16 @@ export const SettingsTab = () => {
 
   const ROBOT_EMAIL = 'sheet-sync-robot@budget-tracker-500302.iam.gserviceaccount.com';
 
+  const handleToggle = () => {
+    const next = !isDarkMode;
+    setIsDarkMode(next);
+    toast(next ? 'Dark mode enabled' : 'Light mode enabled', 'info');
+  };
+
   const handleCopy = () => {
     navigator.clipboard.writeText(ROBOT_EMAIL);
     setCopied(true);
+    toast('Email copied to clipboard!', 'success');
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -38,8 +47,10 @@ export const SettingsTab = () => {
     try {
       await updateGoogleSheet(sheetUrl);
       setStatus('Successfully linked spreadsheet!');
+      toast('Spreadsheet linked successfully!', 'success');
     } catch (err) {
       setStatus('Failed to link spreadsheet.');
+      toast('Failed to link spreadsheet', 'error');
     }
     
     setIsSaving(false);
@@ -59,7 +70,7 @@ export const SettingsTab = () => {
             <span style={{ fontWeight: 600 }}>Dark Mode</span>
           </div>
           <button 
-            onClick={() => setIsDarkMode(!isDarkMode)}
+            onClick={handleToggle}
             style={{ 
               width: '50px', height: '28px', borderRadius: '14px', border: 'none', 
               background: isDarkMode ? 'var(--primary)' : 'var(--border)', 
@@ -95,7 +106,7 @@ export const SettingsTab = () => {
           </div>
           <select 
             value={currency} 
-            onChange={(e) => setCurrency(e.target.value)}
+            onChange={(e) => { setCurrency(e.target.value); toast(`Currency changed to ${e.target.value}`, 'info'); }}
             style={{ 
               padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border)', 
               background: 'var(--surface)', color: 'var(--text)', outline: 'none',

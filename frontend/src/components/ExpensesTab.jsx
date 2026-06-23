@@ -16,9 +16,24 @@ export const ExpensesTab = () => {
 
   if (isLoading) return (
     <div style={{ padding: '0 1.25rem' }}>
-      <div className="skeleton" style={{ height: 50, marginBottom: 12 }}></div>
-      <div className="skeleton" style={{ height: 80, marginBottom: 12 }}></div>
-      <div className="skeleton" style={{ height: 80, marginBottom: 12 }}></div>
+      {/* Month picker skeleton */}
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+        <div className="skeleton" style={{ width: 36, height: 36, borderRadius: '50%' }} />
+        <div className="skeleton" style={{ width: 140, height: 24, borderRadius: 8 }} />
+        <div className="skeleton" style={{ width: 36, height: 36, borderRadius: '50%' }} />
+      </div>
+      {/* Summary cards skeleton */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+        <div className="skeleton" style={{ flex: 1, height: 80, borderRadius: 16 }} />
+        <div className="skeleton" style={{ flex: 1, height: 80, borderRadius: 16 }} />
+      </div>
+      {/* Section header skeleton */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div className="skeleton" style={{ width: 100, height: 18, borderRadius: 8 }} />
+        <div className="skeleton" style={{ width: 80, height: 18, borderRadius: 8 }} />
+      </div>
+      {/* Category item skeletons */}
+      <div className="skeleton" style={{ borderRadius: 18, padding: 16, height: 220 }} />
     </div>
   );
 

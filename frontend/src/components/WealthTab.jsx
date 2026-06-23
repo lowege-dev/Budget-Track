@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGoals, useAddGoal, useUpdateGoal, useDeleteGoal } from '../hooks/useGoals';
 import { useCurrency } from '../hooks/useCurrency';
+import { useToast } from '../hooks/useToast';
 import { Target, ShieldAlert, CreditCard, TrendingUp, Plus, Trash2, PlusCircle, CheckCircle2, X } from 'lucide-react';
 
 const CATEGORIES = [
@@ -28,6 +29,7 @@ export const WealthTab = () => {
   const { mutate: addGoal, isPending: isAdding } = useAddGoal();
   const { mutate: updateGoal } = useUpdateGoal();
   const { mutate: deleteGoal } = useDeleteGoal();
+  const { toast } = useToast();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', type: 'savings', targetAmount: '', deadline: '' });
@@ -42,9 +44,19 @@ export const WealthTab = () => {
     .reduce((s, g) => s + (g.targetAmount - g.currentAmount), 0);
 
   if (isLoading) return (
-    <div style={{ padding: '2rem 1.25rem' }}>
-      {[1,2].map(i => (
-        <div key={i} className="skeleton" style={{ height: 140, marginBottom: 12, borderRadius: 18 }} />
+    <div style={{ padding: '1rem 1.25rem', paddingBottom: '90px' }}>
+      {/* Summary banner skeleton */}
+      <div className="skeleton" style={{ height: 100, borderRadius: 22, marginBottom: 20 }} />
+      {/* Section header skeleton */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div className="skeleton" style={{ width: 160, height: 20, borderRadius: 8 }} />
+        <div className="skeleton" style={{ width: 100, height: 36, borderRadius: 99 }} />
+      </div>
+      {/* Goal card skeletons */}
+      {[1,2,3].map(i => (
+        <div key={i} style={{ marginBottom: 14 }}>
+          <div className="skeleton" style={{ height: 160, borderRadius: 18 }} />
+        </div>
       ))}
     </div>
   );
@@ -57,15 +69,19 @@ export const WealthTab = () => {
       targetAmount: Number(formData.targetAmount),
       deadline: formData.deadline ? new Date(formData.deadline) : undefined,
     }, { onSuccess: () => {
+      toast('Goal created successfully!', 'success');
       setFormData({ name: '', type: 'savings', targetAmount: '', deadline: '' });
       setIsFormOpen(false);
-    }});
+    }, onError: () => toast('Failed to create goal', 'error') });
   };
 
   const handleAddFunds = (goal) => {
     const amt = Number(fundAmount);
     if (!fundAmount || isNaN(amt) || amt <= 0) return;
-    updateGoal({ id: goal._id, updates: { currentAmount: goal.currentAmount + amt } });
+    updateGoal({ id: goal._id, updates: { currentAmount: goal.currentAmount + amt } }, {
+      onSuccess: () => toast(`Added ${currency}${amt} to goal!`, 'success'),
+      onError: () => toast('Failed to add funds', 'error'),
+    });
     setAddingFundsId(null);
     setFundAmount('');
   };
@@ -246,7 +262,7 @@ export const WealthTab = () => {
                     >
                       {/* Delete button */}
                       <button
-                        onClick={() => { if(window.confirm('Delete this goal?')) deleteGoal(goal._id); }}
+                        onClick={() => { if(window.confirm('Delete this goal?')) deleteGoal(goal._id, { onSuccess: () => toast('Goal deleted', 'info'), onError: () => toast('Failed to delete goal', 'error') }); }}
                         style={{
                           position: 'absolute',
                           top: '1rem', right: '1rem',

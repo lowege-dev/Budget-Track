@@ -933,3 +933,13 @@ body {
   box-shadow: 0 6px 20px rgba(108,92,231,0.35);
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
 }
+
+/* ===== TOAST ANIMATIONS ===== */
+@keyframes toastIn {
+  0% { opacity: 0; transform: translateX(100%); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes toastOut {
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(100%); }
+}

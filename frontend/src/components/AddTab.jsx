@@ -17,9 +17,11 @@ const CATEGORIES = [
   { label: 'Other',         icon: MoreHorizontal, color: '#8395A7' },
 ];
 import { useCurrency } from '../hooks/useCurrency';
+import { useToast } from '../hooks/useToast';
 
 export const AddTab = ({ onDone }) => {
   const { currency } = useCurrency();
+  const { toast } = useToast();
   const [text, setText] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('Food');
@@ -43,10 +45,12 @@ export const AddTab = ({ onDone }) => {
       tags: []
     }, {
       onSuccess: () => {
+        toast(`${type === 'expense' ? 'Expense' : 'Income'} added successfully!`, 'success');
         setText(''); setAmount(''); setNotes('');
         setSuccess(true);
         setTimeout(() => { setSuccess(false); onDone(); }, 1400);
-      }
+      },
+      onError: () => toast('Failed to add transaction', 'error'),
     });
   };
 

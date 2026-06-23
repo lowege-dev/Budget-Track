@@ -18,8 +18,24 @@ export const AnalyticsTab = () => {
 
   if (isLoading) return (
     <div style={{ padding: '0 1.25rem' }}>
-      <div className="skeleton" style={{ height: 50, marginBottom: 12 }}></div>
-      <div className="skeleton" style={{ height: 220, borderRadius: '50%', width: 220, margin: '0 auto 12px' }}></div>
+      {/* Month picker skeleton */}
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+        <div className="skeleton" style={{ width: 36, height: 36, borderRadius: '50%' }} />
+        <div className="skeleton" style={{ width: 140, height: 24, borderRadius: 8 }} />
+        <div className="skeleton" style={{ width: 36, height: 36, borderRadius: '50%' }} />
+      </div>
+      {/* Donut chart skeleton */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+        <div className="skeleton" style={{ width: 220, height: 220, borderRadius: '50%' }} />
+      </div>
+      {/* Info card skeleton */}
+      <div className="skeleton" style={{ height: 50, borderRadius: 16, marginBottom: 16 }} />
+      {/* Legend items skeleton */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+        {[1,2,3,4].map(i => (
+          <div key={i} className="skeleton" style={{ width: 90, height: 28, borderRadius: 8 }} />
+        ))}
+      </div>
     </div>
   );
 
