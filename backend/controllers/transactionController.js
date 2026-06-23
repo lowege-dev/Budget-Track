@@ -13,7 +13,8 @@ const pushToGoogleSheet = async (transaction, user) => {
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
-    const doc = new GoogleSpreadsheet('1DMQVxMCth29CfRfVQC4-mPD-gUKB5th7gN5j25CrnxE', serviceAccountAuth);
+    const sheetId = user.googleSheetId || '1DMQVxMCth29CfRfVQC4-mPD-gUKB5th7gN5j25CrnxE';
+    const doc = new GoogleSpreadsheet(sheetId, serviceAccountAuth);
     await doc.loadInfo(); 
     
     // Look for a tab with the user's name

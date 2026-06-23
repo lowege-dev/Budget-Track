@@ -7,7 +7,8 @@ import { HomeTab } from './components/HomeTab'
 import { ExpensesTab } from './components/ExpensesTab'
 import { AnalyticsTab } from './components/AnalyticsTab'
 import { AddTab } from './components/AddTab'
-import { Home, PieChart, PlusCircle, BarChart3, LogOut, Printer, Wallet, Lock } from 'lucide-react'
+import { SettingsTab } from './components/SettingsTab'
+import { Home, PieChart, PlusCircle, BarChart3, LogOut, Printer, Wallet, Lock, Settings } from 'lucide-react'
 
 const AuthScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -55,6 +56,9 @@ function App() {
         </button>
 
         <div className="side-nav-bottom">
+          <button className={`side-nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
+            <Settings size={20} /> Settings
+          </button>
           <button className="side-nav-item" onClick={() => window.dispatchEvent(new Event('lock-app'))}>
             <Lock size={20} /> Lock App
           </button>
@@ -78,6 +82,7 @@ function App() {
                 {activeTab === 'expenses' && 'Expenses'}
                 {activeTab === 'analytics' && 'Analytics'}
                 {activeTab === 'add' && 'New Transaction'}
+                {activeTab === 'settings' && 'Settings'}
               </div>
               <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Hello, {user.name}</div>
             </div>
@@ -95,6 +100,7 @@ function App() {
           {activeTab === 'expenses' && <ExpensesTab />}
           {activeTab === 'analytics' && <AnalyticsTab />}
           {activeTab === 'add' && <AddTab onDone={() => setActiveTab('home')} />}
+          {activeTab === 'settings' && <SettingsTab />}
         </div>
 
         {/* Bottom Nav — hidden on desktop via CSS */}
@@ -118,6 +124,11 @@ function App() {
             <PieChart size={22} />
             <span>Analytics</span>
             {activeTab === 'analytics' && <div className="nav-dot" />}
+          </button>
+          <button className={`nav-item ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>
+            <Settings size={22} />
+            <span>Settings</span>
+            {activeTab === 'settings' && <div className="nav-dot" />}
           </button>
         </div>
       </div>

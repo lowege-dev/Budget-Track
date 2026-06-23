@@ -22,6 +22,10 @@ const UserSchema = new mongoose.Schema({
     minlength: 6,
     select: false // Do not return password by default
   },
+  googleSheetId: {
+    type: String,
+    default: ''
+  },
   createdAt: {
     type: Date,
     default: Date.now

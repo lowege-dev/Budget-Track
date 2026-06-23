@@ -829,6 +829,10 @@ body {
     margin: 0 auto;
   }
 
+  .top-bar-right {
+    display: none;
+  }
+
   .card {
     margin: 0 0 1rem;
   }

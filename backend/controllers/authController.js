@@ -3,7 +3,7 @@ const User = require('../models/User');
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
   const token = user.getSignedJwtToken();
-  res.status(statusCode).json({ success: true, token, user: { id: user._id, name: user.name, email: user.email } });
+  res.status(statusCode).json({ success: true, token, user: { id: user._id, name: user.name, email: user.email, googleSheetId: user.googleSheetId } });
 };
 
 // @desc    Register user
@@ -54,7 +54,29 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    res.status(200).json({ success: true, user: { id: user._id, name: user.name, email: user.email } });
+    res.status(200).json({ success: true, user: { id: user._id, name: user.name, email: user.email, googleSheetId: user.googleSheetId } });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+};
+
+// @desc    Update Google Sheet ID
+// @route   PUT /api/auth/sheet
+// @access  Private
+exports.updateSheet = async (req, res) => {
+  try {
+    let { googleSheetId } = req.body;
+    
+    // Extract ID if user pastes full URL
+    if (googleSheetId.includes('spreadsheets/d/')) {
+      const match = googleSheetId.match(/\/d\/([a-zA-Z0-9-_]+)/);
+      if (match && match[1]) {
+        googleSheetId = match[1];
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(req.user.id, { googleSheetId }, { new: true });
+    res.status(200).json({ success: true, user: { id: user._id, name: user.name, email: user.email, googleSheetId: user.googleSheetId } });
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });
   }

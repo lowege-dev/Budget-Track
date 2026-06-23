@@ -56,6 +56,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('budget_token', data.token);
   };
 
+  const updateGoogleSheet = async (googleSheetId) => {
+    const { data } = await axios.put('/api/auth/sheet', { googleSheetId });
+    setUser(data.user);
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -64,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, loginWithGoogle, updateGoogleSheet, logout }}>
       {children}
     </AuthContext.Provider>
   );
