@@ -9,6 +9,7 @@ import { AnalyticsTab } from './components/AnalyticsTab'
 import { AddTab } from './components/AddTab'
 import { SettingsTab } from './components/SettingsTab'
 import { NotesTab } from './components/NotesTab'
+import { useNotes } from './hooks/useNotes'
 import { Home, PieChart, PlusCircle, BarChart3, LogOut, Printer, Wallet, Lock, Settings, BookOpen } from 'lucide-react'
 
 const AuthScreen = () => {
@@ -21,6 +22,9 @@ const AuthScreen = () => {
 function App() {
   const { user, loading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
+  
+  // Background prefetch for Vercel cold-starts
+  useNotes({ enabled: !!user });
 
   if (loading) return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>

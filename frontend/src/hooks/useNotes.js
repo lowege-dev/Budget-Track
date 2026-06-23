@@ -1,13 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
-export const useNotes = () => {
+export const useNotes = (options = {}) => {
   return useQuery({
     queryKey: ['notes'],
     queryFn: async () => {
       const res = await axios.get('/api/notes');
       return res.data.data;
-    }
+    },
+    ...options
   });
 };
 
