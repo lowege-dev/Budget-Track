@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, User, Wallet } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 
 export const Register = ({ onSwitchToLogin }) => {
   const [name, setName] = useState('');
@@ -8,7 +9,7 @@ export const Register = ({ onSwitchToLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,6 +75,24 @@ export const Register = ({ onSwitchToLogin }) => {
             {isSubmitting ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
+
+        <div style={{ display: 'flex', alignItems: 'center', margin: '1.5rem 0' }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border)' }}></div>
+          <span style={{ margin: '0 1rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>or continue with</span>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--border)' }}></div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+          <GoogleLogin
+            onSuccess={credentialResponse => {
+              loginWithGoogle(credentialResponse.credential).catch(err => setError('Google registration failed'));
+            }}
+            onError={() => {
+              setError('Google registration failed');
+            }}
+            useOneTap
+          />
+        </div>
 
         <div className="auth-footer">
           <p>

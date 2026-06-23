@@ -59,3 +59,41 @@ exports.getMe = async (req, res) => {
     res.status(400).json({ success: false, error: err.message });
   }
 };
+
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client('967279769061-gd9j9e1hn55bs7e0ibkkjl55cc5rkfc5.apps.googleusercontent.com');
+
+// @desc    Login/Register via Google
+// @route   POST /api/auth/google
+// @access  Public
+exports.googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    // Verify Google token
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: '967279769061-gd9j9e1hn55bs7e0ibkkjl55cc5rkfc5.apps.googleusercontent.com',
+    });
+    
+    const payload = ticket.getPayload();
+    const { email, name } = payload;
+    
+    // Check if user exists
+    let user = await User.findOne({ email });
+    
+    if (!user) {
+      // Create user with a random password since they use Google
+      user = await User.create({ 
+        name, 
+        email, 
+        password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8)
+      });
+    }
+    
+    sendTokenResponse(user, 200, res);
+  } catch (err) {
+    console.error("Google Auth Error:", err);
+    res.status(400).json({ success: false, error: 'Google login failed' });
+  }
+};

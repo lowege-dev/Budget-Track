@@ -49,6 +49,13 @@ export const AuthProvider = ({ children }) => {
     // Intentionally NOT setting token here so the user is forced to login manually!
   };
 
+  const loginWithGoogle = async (googleToken) => {
+    const { data } = await axios.post('/api/auth/google', { token: googleToken });
+    setToken(data.token);
+    setUser(data.user);
+    localStorage.setItem('budget_token', data.token);
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -57,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );
