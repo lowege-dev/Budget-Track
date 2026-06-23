@@ -12,29 +12,72 @@ export const PinLock = ({ children }) => {
   const [isLocked, setIsLocked] = useState(true);
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutTimer, setLockoutTimer] = useState(0);
+
+  useEffect(() => {
+    let interval;
+    if (lockoutTimer > 0) {
+      interval = setInterval(() => {
+        setLockoutTimer(prev => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [lockoutTimer]);
+
+  const hashPin = async (plainPin) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plainPin);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  };
 
   const handleKeyPress = (num) => {
+    if (lockoutTimer > 0) return;
     if (pin.length < 4) { setPin(p => p + num); setError(false); }
   };
 
-  const handleDelete = () => { setPin(p => p.slice(0, -1)); setError(false); };
+  const handleDelete = () => { 
+    if (lockoutTimer > 0) return;
+    setPin(p => p.slice(0, -1)); 
+    setError(false); 
+  };
 
   useEffect(() => {
-    if (pin.length === 4) {
-      if (!isPinSet) {
-        localStorage.setItem(pinKey, pin);
-        setIsLocked(false);
-        setPin('');
-      } else {
-        if (pin === actualStoredPin) {
+    const processPin = async () => {
+      if (pin.length === 4) {
+        if (!isPinSet) {
+          const hashed = await hashPin(pin);
+          localStorage.setItem(pinKey, hashed);
           setIsLocked(false);
           setPin('');
         } else {
-          setError(true);
-          setTimeout(() => setPin(''), 500);
+          const hashed = await hashPin(pin);
+          // Check against hashed PIN, but fallback to plain PIN for backwards compatibility
+          if (hashed === actualStoredPin || pin === actualStoredPin) {
+            if (pin === actualStoredPin) {
+              // Upgrade plain text PIN to hashed PIN in localStorage
+              localStorage.setItem(pinKey, hashed);
+            }
+            setIsLocked(false);
+            setPin('');
+          } else {
+            setError(true);
+            setFailedAttempts(prev => {
+              const newAttempts = prev + 1;
+              if (newAttempts >= 4) {
+                setLockoutTimer(60); // Lock out for 60 seconds
+                return 0; // Reset attempts after locking out
+              }
+              return newAttempts;
+            });
+            setTimeout(() => setPin(''), 500);
+          }
         }
       }
-    }
+    };
+    processPin();
   }, [pin, isPinSet, actualStoredPin, pinKey]);
 
   useEffect(() => {
@@ -57,10 +100,12 @@ export const PinLock = ({ children }) => {
         </div>
 
         <h2 style={{ marginBottom: '0.4rem', fontSize: '1.4rem', fontWeight: 700 }}>
-          {isPinSet ? 'Enter PIN' : 'Create 4-Digit PIN'}
+          {lockoutTimer > 0 ? 'App Locked' : (isPinSet ? 'Enter PIN' : 'Create 4-Digit PIN')}
         </h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-          {isPinSet ? 'Unlock your financial dashboard.' : 'Secure your data with a lock code.'}
+        <p style={{ marginBottom: '1.5rem', fontSize: '0.9rem', color: lockoutTimer > 0 ? 'var(--danger)' : 'var(--text-secondary)' }}>
+          {lockoutTimer > 0 
+            ? `Too many failed attempts. Try again in ${lockoutTimer}s.` 
+            : (isPinSet ? 'Unlock your financial dashboard.' : 'Secure your data with a lock code.')}
         </p>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: '2rem' }}>
@@ -75,16 +120,16 @@ export const PinLock = ({ children }) => {
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, maxWidth: 240, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, maxWidth: 240, margin: '0 auto', opacity: lockoutTimer > 0 ? 0.5 : 1 }}>
           {[1,2,3,4,5,6,7,8,9].map(n => (
             <button key={n} onClick={() => handleKeyPress(n.toString())}
-              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', padding: 14, fontSize: '1.15rem', fontWeight: 600, borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
+              style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', padding: 14, fontSize: '1.15rem', fontWeight: 600, borderRadius: 12, cursor: lockoutTimer > 0 ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
               {n}
             </button>
           ))}
           <div />
-          <button onClick={() => handleKeyPress('0')} style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', padding: 14, fontSize: '1.15rem', fontWeight: 600, borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit' }}>0</button>
-          <button onClick={handleDelete} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', padding: 14, fontSize: '1.15rem', borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit' }}>⌫</button>
+          <button onClick={() => handleKeyPress('0')} style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', padding: 14, fontSize: '1.15rem', fontWeight: 600, borderRadius: 12, cursor: lockoutTimer > 0 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>0</button>
+          <button onClick={handleDelete} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', padding: 14, fontSize: '1.15rem', borderRadius: 12, cursor: lockoutTimer > 0 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>⌫</button>
         </div>
       </div>
 

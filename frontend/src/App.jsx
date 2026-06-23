@@ -59,6 +59,78 @@ const AuthScreen = () => {
     : <Register onSwitchToLogin={() => setIsLogin(true)} />;
 };
 
+const AppSkeleton = () => (
+  <>
+    {/* Desktop Sidebar Skeleton */}
+    <nav className="side-nav">
+      <div className="side-nav-brand">
+        <div className="skeleton" style={{ width: 36, height: 36, borderRadius: 10 }}></div>
+        <div className="skeleton" style={{ width: 120, height: 24, borderRadius: 6 }}></div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+        {[1, 2, 3, 4, 5, 6].map(i => (
+          <div key={i} className="skeleton" style={{ height: 44, borderRadius: 12 }}></div>
+        ))}
+      </div>
+      <div className="side-nav-bottom">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="skeleton" style={{ height: 44, borderRadius: 12 }}></div>
+          ))}
+        </div>
+      </div>
+    </nav>
+
+    <div className="app-shell">
+      {/* Top Bar Skeleton */}
+      <div className="top-bar">
+        <div className="top-bar-left">
+          <div className="skeleton" style={{ width: 42, height: 42, borderRadius: 14 }}></div>
+          <div>
+            <div className="skeleton" style={{ width: 100, height: 16, borderRadius: 4, marginBottom: 6 }}></div>
+            <div className="skeleton" style={{ width: 60, height: 12, borderRadius: 4 }}></div>
+          </div>
+        </div>
+        <div className="top-bar-right">
+          <div className="skeleton icon-btn" style={{ border: 'none' }}></div>
+          <div className="skeleton icon-btn" style={{ border: 'none' }}></div>
+          <div className="skeleton icon-btn" style={{ border: 'none' }}></div>
+        </div>
+      </div>
+
+      {/* Tab Content (Home Tab Skeleton) */}
+      <div className="tab-content-area" style={{ padding: '0 1.25rem' }}>
+        <div className="skeleton" style={{ height: 160, borderRadius: 22, marginBottom: 16 }} />
+        <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+          <div className="skeleton" style={{ flex: 1, height: 80, borderRadius: 16 }} />
+          <div className="skeleton" style={{ flex: 1, height: 80, borderRadius: 16 }} />
+        </div>
+        <div className="skeleton" style={{ height: 44, borderRadius: 12, marginBottom: 16 }} />
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div className="skeleton" style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div className="skeleton" style={{ width: '60%', height: 14, borderRadius: 6, marginBottom: 6 }} />
+              <div className="skeleton" style={{ width: '35%', height: 12, borderRadius: 6 }} />
+            </div>
+            <div className="skeleton" style={{ width: 60, height: 16, borderRadius: 6 }} />
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom Nav Skeleton */}
+      <div className="bottom-nav">
+        {[1, 2, 3, 4, 5].map(i => (
+          <div key={i} className="nav-item">
+            <div className="skeleton" style={{ width: 24, height: 24, borderRadius: '50%', marginBottom: 4 }} />
+            <div className="skeleton" style={{ width: 40, height: 8, borderRadius: 4 }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </>
+);
+
 function App() {
   const { user, loading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('home');
@@ -66,11 +138,7 @@ function App() {
   // Background prefetch for Vercel cold-starts
   useNotes({ enabled: !!user });
 
-  if (loading) return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <div className="skeleton" style={{ width: 60, height: 60 }}></div>
-    </div>
-  );
+  if (loading) return <AppSkeleton />;
 
   if (!user) return <AuthScreen />;
 
