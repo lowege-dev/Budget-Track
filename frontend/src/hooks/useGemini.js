@@ -14,7 +14,7 @@ export const useGemini = () => {
     setError(null);
     
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -30,7 +30,13 @@ export const useGemini = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch from Gemini API. Please check your API key.');
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 503) {
+          throw new Error('The AI service is currently experiencing high demand. Please try again in a few minutes.');
+        } else if (errorData?.error?.message) {
+          throw new Error(`Gemini API Error: ${errorData.error.message}`);
+        }
+        throw new Error('Failed to fetch from Gemini API. Please check your API key or network connection.');
       }
 
       const data = await response.json();

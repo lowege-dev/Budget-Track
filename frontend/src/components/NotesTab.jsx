@@ -44,18 +44,34 @@ export const NotesTab = () => {
     });
   };
 
+  const hashPin = async (plainPin) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(plainPin);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
   React.useEffect(() => {
-    if (guessPin.length === 4) {
-      if (guessPin === appPin) {
-        setUnlockedNotes(p => ({ ...p, [unlockPromptNote]: true }));
-        setUnlockPromptNote(null);
-        setGuessPin('');
-      } else {
-        setPinError(true);
-        setTimeout(() => setGuessPin(''), 500);
+    const checkPin = async () => {
+      if (guessPin.length === 4) {
+        const hashedGuess = await hashPin(guessPin);
+        if (hashedGuess === appPin || guessPin === appPin) {
+          setUnlockedNotes(p => ({ ...p, [unlockPromptNote]: true }));
+          setUnlockPromptNote(null);
+          setGuessPin('');
+          
+          if (guessPin === appPin) {
+            localStorage.setItem(`budget_pin_${userId}`, hashedGuess);
+          }
+        } else {
+          setPinError(true);
+          setTimeout(() => setGuessPin(''), 500);
+        }
       }
-    }
-  }, [guessPin, appPin, unlockPromptNote]);
+    };
+    checkPin();
+  }, [guessPin, appPin, unlockPromptNote, userId]);
 
   if (isLoading) return (
     <div className="tab-container" style={{ padding: '0 1.25rem' }}>
