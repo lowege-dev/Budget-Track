@@ -248,6 +248,11 @@ function App() {
             <span>Add</span>
             {activeTab === 'add' && <div className="nav-dot" />}
           </button>
+          <button className={`nav-item ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
+            <PieChart size={22} />
+            <span>Analytics</span>
+            {activeTab === 'analytics' && <div className="nav-dot" />}
+          </button>
           <button className={`nav-item ${activeTab === 'wealth' ? 'active' : ''}`} onClick={() => setActiveTab('wealth')}>
             <Target size={22} />
             <span>Wealth</span>
