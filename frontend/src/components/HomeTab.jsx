@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTransactions } from '../hooks/useTransactions';
-import { TrendingUp, TrendingDown, Utensils, Car, Gamepad2, ShoppingBag, Zap, Briefcase, MoreHorizontal, Trash2, Search } from 'lucide-react';
+import { TrendingUp, TrendingDown, Utensils, Car, Gamepad2, ShoppingBag, Zap, Briefcase, MoreHorizontal, Trash2, Search, Wallet, ArrowDownRight } from 'lucide-react';
 import { useDeleteTransaction, useUpdateTransaction } from '../hooks/useTransactions';
 import { useCurrency } from '../hooks/useCurrency';
 import { useToast } from '../hooks/useToast';
@@ -217,9 +217,38 @@ export const HomeTab = () => {
       <ul className="txn-list">
         {displayList.map(t => <TxnItem key={t._id} t={t} currency={currency} />)}
         {displayList.length === 0 && (
-          <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem 0' }}>
-            {search ? 'No matching transactions found.' : 'No transactions yet. Tap + to add one!'}
-          </p>
+          <div style={{ textAlign: 'center', padding: '3rem 1.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'var(--text-secondary)' }}>
+            {search ? (
+              <p>No matching transactions found.</p>
+            ) : (
+              <>
+                <div style={{ background: 'rgba(108, 92, 231, 0.1)', padding: '1.25rem', borderRadius: '50%', color: 'var(--primary)', marginBottom: '1.25rem' }}>
+                  <Wallet size={36} />
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: '0.5rem' }}>Welcome to Budget Track!</h3>
+                <p className="mobile-only-text" style={{ fontSize: '0.95rem', lineHeight: 1.5, maxWidth: '280px', margin: '0 auto 2rem' }}>
+                  Your dashboard is looking a little empty. Tap the <strong style={{color: 'var(--primary)'}}>+</strong> button to add your first transaction.
+                </p>
+                <p className="desktop-only-text" style={{ fontSize: '0.95rem', lineHeight: 1.5, maxWidth: '280px', margin: '0 auto' }}>
+                  Your dashboard is looking a little empty. Click <strong>Add Transaction</strong> on the left to get started.
+                </p>
+                <div className="mobile-only-arrow" style={{ 
+                  color: 'var(--primary)', 
+                  opacity: 0.6,
+                  transform: 'rotate(-15deg) translateX(40px)',
+                  animation: 'bounceFloat 2s infinite ease-in-out'
+                }}>
+                  <ArrowDownRight size={48} strokeWidth={1.5} />
+                </div>
+                <style>{`
+                  @keyframes bounceFloat {
+                    0%, 100% { transform: rotate(-15deg) translateX(30px) translateY(0); }
+                    50% { transform: rotate(-15deg) translateX(40px) translateY(10px); }
+                  }
+                `}</style>
+              </>
+            )}
+          </div>
         )}
       </ul>
     </>

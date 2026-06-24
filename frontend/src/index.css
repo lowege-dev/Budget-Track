@@ -452,6 +452,35 @@ body {
   margin-top: 2px;
 }
 
+/* ===== MOBILE FAB ===== */
+.mobile-fab {
+  position: fixed;
+  bottom: 85px;
+  right: 1.25rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(108,92,231,0.35);
+  border: none;
+  cursor: pointer;
+  z-index: 101;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mobile-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(108,92,231,0.45);
+}
+
+.desktop-only-text {
+  display: none;
+}
+
 /* ===== ADD TRANSACTION FORM ===== */
 .add-form { padding: 0 1.25rem; }
 
@@ -746,7 +775,15 @@ body {
     padding-bottom: 3rem;
   }
 
-  .bottom-nav {
+  .desktop-only-text {
+    display: block;
+  }
+
+  .mobile-only-text, .mobile-only-arrow {
+    display: none;
+  }
+
+  .bottom-nav, .mobile-fab {
     display: none;
   }
 

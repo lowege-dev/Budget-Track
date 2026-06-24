@@ -12,7 +12,7 @@ import { NotesTab } from './components/NotesTab'
 import { WealthTab } from './components/WealthTab'
 import { useNotes } from './hooks/useNotes'
 import { useRegisterSW } from 'virtual:pwa-register/react'
-import { Home, PieChart, PlusCircle, BarChart3, LogOut, Printer, Wallet, Lock, Settings, BookOpen, Target, DownloadCloud } from 'lucide-react'
+import { Home, PieChart, PlusCircle, Plus, BarChart3, LogOut, Printer, Wallet, Lock, Settings, BookOpen, Target, DownloadCloud } from 'lucide-react'
 
 function ReloadPrompt() {
   const {
@@ -226,6 +226,13 @@ function App() {
           {activeTab === 'settings' && <SettingsTab />}
         </div>
 
+        {/* Mobile Floating Action Button (FAB) */}
+        {activeTab !== 'add' && (
+          <button className="mobile-fab" onClick={() => setActiveTab('add')} title="Add Transaction">
+            <Plus size={28} />
+          </button>
+        )}
+
         {/* Bottom Nav — hidden on desktop via CSS */}
         <div className="bottom-nav">
           <button className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
@@ -242,11 +249,6 @@ function App() {
             <BookOpen size={22} />
             <span>Diary</span>
             {activeTab === 'notes' && <div className="nav-dot" />}
-          </button>
-          <button className={`nav-item ${activeTab === 'add' ? 'active' : ''}`} onClick={() => setActiveTab('add')}>
-            <PlusCircle size={26} />
-            <span>Add</span>
-            {activeTab === 'add' && <div className="nav-dot" />}
           </button>
           <button className={`nav-item ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>
             <PieChart size={22} />
