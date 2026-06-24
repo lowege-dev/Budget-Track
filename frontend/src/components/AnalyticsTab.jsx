@@ -50,83 +50,86 @@ export const AnalyticsTab = () => {
     </div>
   );
 
-  const now = new Date();
-  const target = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
-  const monthName = `${MONTHS[target.getMonth()]} ${target.getFullYear()}`;
+  const { chartData, insights, totalExpense, labels, values, colors, monthName, cats, lastMonthExpense } = React.useMemo(() => {
+    const now = new Date();
+    const target = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+    const monthName = `${MONTHS[target.getMonth()]} ${target.getFullYear()}`;
 
-  const lastMonthTarget = new Date(now.getFullYear(), now.getMonth() + monthOffset - 1, 1);
+    const lastMonthTarget = new Date(now.getFullYear(), now.getMonth() + monthOffset - 1, 1);
 
-  const filtered = transactions?.filter(t => {
-    const d = new Date(t.date);
-    return d.getMonth() === target.getMonth() && d.getFullYear() === target.getFullYear();
-  }) || [];
+    const filtered = transactions?.filter(t => {
+      const d = new Date(t.date);
+      return d.getMonth() === target.getMonth() && d.getFullYear() === target.getFullYear();
+    }) || [];
 
-  const lastMonthFiltered = transactions?.filter(t => {
-    const d = new Date(t.date);
-    return d.getMonth() === lastMonthTarget.getMonth() && d.getFullYear() === lastMonthTarget.getFullYear();
-  }) || [];
+    const lastMonthFiltered = transactions?.filter(t => {
+      const d = new Date(t.date);
+      return d.getMonth() === lastMonthTarget.getMonth() && d.getFullYear() === lastMonthTarget.getFullYear();
+    }) || [];
 
-  const expenses = filtered.filter(t => t.amount < 0);
-  const totalExpense = expenses.reduce((a, t) => a + Math.abs(t.amount), 0);
-  
-  const lastMonthExpense = lastMonthFiltered.filter(t => t.amount < 0).reduce((a, t) => a + Math.abs(t.amount), 0);
+    const expenses = filtered.filter(t => t.amount < 0);
+    const totalExpense = expenses.reduce((a, t) => a + Math.abs(t.amount), 0);
+    
+    const lastMonthExpense = lastMonthFiltered.filter(t => t.amount < 0).reduce((a, t) => a + Math.abs(t.amount), 0);
 
-  const cats = {};
-  expenses.forEach(t => { cats[t.category] = (cats[t.category] || 0) + Math.abs(t.amount); });
+    const cats = {};
+    expenses.forEach(t => { cats[t.category] = (cats[t.category] || 0) + Math.abs(t.amount); });
 
-  const labels = Object.keys(cats);
-  const values = Object.values(cats);
-  const colors = labels.map(c => CATEGORY_COLORS[c] || '#8395A7');
+    const labels = Object.keys(cats);
+    const values = Object.values(cats);
+    const colors = labels.map(c => CATEGORY_COLORS[c] || '#8395A7');
 
-  // GENERATE SMART INSIGHTS
-  const insights = [];
-  
-  if (lastMonthExpense > 0 && totalExpense > 0) {
-    const diff = totalExpense - lastMonthExpense;
-    const pct = Math.abs((diff / lastMonthExpense) * 100).toFixed(0);
-    if (diff > 0) {
-      insights.push({ icon: TrendingUp, color: 'var(--danger)', text: `You've spent ${pct}% more this month compared to last month.` });
-    } else if (diff < 0) {
-      insights.push({ icon: TrendingDown, color: 'var(--success)', text: `Great job! You've spent ${pct}% less this month than last month.` });
+    const insights = [];
+    
+    if (lastMonthExpense > 0 && totalExpense > 0) {
+      const diff = totalExpense - lastMonthExpense;
+      const pct = Math.abs((diff / lastMonthExpense) * 100).toFixed(0);
+      if (diff > 0) {
+        insights.push({ icon: TrendingUp, color: 'var(--danger)', text: `You've spent ${pct}% more this month compared to last month.` });
+      } else if (diff < 0) {
+        insights.push({ icon: TrendingDown, color: 'var(--success)', text: `Great job! You've spent ${pct}% less this month than last month.` });
+      }
     }
-  }
 
-  if (labels.length > 0) {
-    const topCategory = labels.reduce((a, b) => cats[a] > cats[b] ? a : b);
-    insights.push({ icon: Sparkles, color: 'var(--primary)', text: `Your highest expense is ${topCategory}, making up ${((cats[topCategory]/totalExpense)*100).toFixed(0)}% of your spending.` });
-  }
-
-  let limitExceeded = false;
-  let closeToLimit = false;
-  Object.keys(limits).forEach(cat => {
-    if (limits[cat] > 0 && cats[cat]) {
-      const pct = (cats[cat] / limits[cat]) * 100;
-      if (pct >= 100) limitExceeded = true;
-      else if (pct >= 80) closeToLimit = true;
+    if (labels.length > 0) {
+      const topCategory = labels.reduce((a, b) => cats[a] > cats[b] ? a : b);
+      insights.push({ icon: Sparkles, color: 'var(--primary)', text: `Your highest expense is ${topCategory}, making up ${((cats[topCategory]/totalExpense)*100).toFixed(0)}% of your spending.` });
     }
-  });
 
-  if (limitExceeded) {
-    insights.push({ icon: AlertTriangle, color: 'var(--danger)', text: `Warning: You have exceeded your budget limit in one or more categories.` });
-  } else if (closeToLimit) {
-    insights.push({ icon: AlertTriangle, color: 'var(--warning)', text: `Careful! You are approaching your budget limit in some categories.` });
-  } else if (Object.keys(limits).length > 0 && labels.length > 0) {
-    insights.push({ icon: CheckCircle2, color: 'var(--success)', text: `You are currently within all your set budget limits. Keep it up!` });
-  }
+    let limitExceeded = false;
+    let closeToLimit = false;
+    Object.keys(limits).forEach(cat => {
+      if (limits[cat] > 0 && cats[cat]) {
+        const pct = (cats[cat] / limits[cat]) * 100;
+        if (pct >= 100) limitExceeded = true;
+        else if (pct >= 80) closeToLimit = true;
+      }
+    });
 
-  const data = {
-    labels,
-    datasets: [{
-      data: values,
-      backgroundColor: colors,
-      borderWidth: 0,
-      cutout: '70%',
-      borderRadius: 6,
-      spacing: 4,
-    }],
-  };
+    if (limitExceeded) {
+      insights.push({ icon: AlertTriangle, color: 'var(--danger)', text: `Warning: You have exceeded your budget limit in one or more categories.` });
+    } else if (closeToLimit) {
+      insights.push({ icon: AlertTriangle, color: 'var(--warning)', text: `Careful! You are approaching your budget limit in some categories.` });
+    } else if (Object.keys(limits).length > 0 && labels.length > 0) {
+      insights.push({ icon: CheckCircle2, color: 'var(--success)', text: `You are currently within all your set budget limits. Keep it up!` });
+    }
 
-  const options = {
+    const data = {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors,
+        borderWidth: 0,
+        cutout: '70%',
+        borderRadius: 6,
+        spacing: 4,
+      }],
+    };
+
+    return { chartData: data, insights, totalExpense, labels, values, colors, monthName, cats, lastMonthExpense };
+  }, [transactions, monthOffset, limits]);
+
+  const options = React.useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -142,7 +145,7 @@ export const AnalyticsTab = () => {
         }
       }
     }
-  };
+  }), [currency, totalExpense]);
 
   const centerText = {
     id: 'centerText',
@@ -244,7 +247,7 @@ export const AnalyticsTab = () => {
         {labels.length > 0 ? (
           <>
             <div className="chart-wrap">
-              <Doughnut data={data} options={options} plugins={[centerText]} />
+              <Doughnut data={chartData} options={options} plugins={[centerText]} />
             </div>
             <div className="chart-legend-custom">
               {labels.map((cat, i) => {

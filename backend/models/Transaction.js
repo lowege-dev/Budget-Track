@@ -44,4 +44,6 @@ const TransactionSchema = new mongoose.Schema({
   }
 });
 
+TransactionSchema.index({ user: 1, date: -1 });
+
 module.exports = mongoose.model('Transaction', TransactionSchema);

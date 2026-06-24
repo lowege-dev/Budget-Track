@@ -22,6 +22,9 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+const compression = require('compression');
+app.use(compression());
+
 app.use(express.json());
 
 // General rate limiter for all API routes
