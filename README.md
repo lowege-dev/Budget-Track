@@ -45,6 +45,34 @@ Budget Track isn't just an expense logger—it's a complete wealth companion bui
 * **Security & Performance:** `express-rate-limit`, `compression`, `cors`
 * **AI:** `@google/genai` (Gemini API)
 
+## 🔌 REST API Endpoints
+
+The backend is structured as a fully functional REST API. Here are the core endpoints:
+
+### Authentication (`/api/auth`)
+- `POST /register` - Register a new user account
+- `POST /login` - Authenticate and receive JWT token
+- `GET /me` - Verify token and return user profile
+- `POST /google` - Handle 1-Tap Google OAuth integration
+
+### Transactions (`/api/transactions`)
+- `GET /` - Retrieve all transactions for the user
+- `POST /` - Create a new income/expense log
+- `PUT /:id` - Update a specific transaction
+- `DELETE /:id` - Remove a transaction
+
+### Wealth Goals (`/api/goals`)
+- `GET /` - Fetch all financial tracking goals
+- `POST /` - Set a new savings or debt goal
+- `PUT /:id` - Update goal progress (add funds)
+- `DELETE /:id` - Delete a goal
+
+### Financial Diary (`/api/notes`)
+- `GET /` - Retrieve all diary entries
+- `POST /` - Add a new diary note
+- `PUT /:id` - Edit a note
+- `DELETE /:id` - Delete a note
+
 ## 🚀 Getting Started
 
 ### Prerequisites
