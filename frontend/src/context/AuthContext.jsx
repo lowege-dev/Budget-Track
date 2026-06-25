@@ -21,14 +21,22 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const loadUser = async () => {
+      // Guarantee the loading screen is visible for at least 1.5 s
+      const minDelay = new Promise(res => setTimeout(res, 1500));
+
       if (!token) {
+        await minDelay;
         setLoading(false);
         return;
       }
       try {
-        const { data } = await axios.get('/api/auth/me');
+        const [{ data }] = await Promise.all([
+          axios.get('/api/auth/me'),
+          minDelay,
+        ]);
         setUser(data.user);
       } catch (err) {
+        await minDelay;
         setToken(null);
         localStorage.removeItem('budget_token');
       }

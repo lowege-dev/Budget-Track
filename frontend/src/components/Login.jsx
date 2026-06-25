@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Wallet } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
+import { LoadingScreen } from './LoadingScreen';
 
 export const Login = ({ onSwitchToRegister }) => {
   const [email, setEmail] = useState('');
@@ -22,7 +23,9 @@ export const Login = ({ onSwitchToRegister }) => {
   };
 
   return (
-    <div className="auth-wrapper">
+    <>
+      {isSubmitting && <LoadingScreen />}
+      <div className="auth-wrapper">
       <div className="auth-card">
         <div className="auth-header">
           <div className="auth-logo">
@@ -70,8 +73,14 @@ export const Login = ({ onSwitchToRegister }) => {
 
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
           <GoogleLogin
-            onSuccess={credentialResponse => {
-              loginWithGoogle(credentialResponse.credential).catch(err => setError('Google login failed'));
+            onSuccess={async (credentialResponse) => {
+              setIsSubmitting(true);
+              try {
+                await loginWithGoogle(credentialResponse.credential);
+              } catch (err) {
+                setError('Google login failed');
+                setIsSubmitting(false);
+              }
             }}
             onError={() => {
               setError('Google login failed');
@@ -94,7 +103,8 @@ export const Login = ({ onSwitchToRegister }) => {
             </span>
           </p>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };

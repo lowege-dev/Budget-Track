@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { LoadingScreen } from './components/LoadingScreen'
 import { useAuth } from './context/AuthContext'
 import { Login } from './components/Login'
 import { Register } from './components/Register'
@@ -138,7 +139,7 @@ function App() {
   // Background prefetch for Vercel cold-starts
   useNotes({ enabled: !!user });
 
-  if (loading) return <AppSkeleton />;
+  if (loading) return <LoadingScreen />;
 
   if (!user) return <AuthScreen />;
 
