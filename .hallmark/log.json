@@ -1,0 +1,12 @@
+[
+  {
+    "date": "2026-06-28",
+    "macrostructure": "Workbench",
+    "theme": "custom",
+    "theme_axes": "dark / geometric-sans / cool",
+    "vibe": "modern-minimal slate and indigo dashboard",
+    "enrichment": "none",
+    "scope": "app",
+    "brief": "Multi-page redesign of the MERN budget tracker UI to enforce the modern-minimal locked design system"
+  }
+]

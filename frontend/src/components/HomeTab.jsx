@@ -183,18 +183,6 @@ export const HomeTab = () => {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="summary-row">
-        <div className="summary-card income-card">
-          <div className="summary-card-label">Total Income</div>
-          <div className="summary-card-amount">{currency}{income}</div>
-        </div>
-        <div className="summary-card expense-card">
-          <div className="summary-card-label">Total Expense</div>
-          <div className="summary-card-amount">{currency}{expense}</div>
-        </div>
-      </div>
-
       {/* Recent Transactions */}
       <div className="section-header">
         <span className="section-title">{search ? 'Search Results' : 'Recent Transactions'}</span>

@@ -1,15 +1,15 @@
-/* ===== LOADING SCREEN ===== */
+/* Hallmark · design-system: design.md · designed-as-app */
 
 .ls-backdrop {
   position: fixed;
   inset: 0;
-  background: var(--bg);
+  background: var(--color-paper);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
   overflow: hidden;
-  animation: ls-fadeIn 0.3s ease;
+  animation: ls-fadeIn 0.3s var(--ease-out);
 }
 
 @keyframes ls-fadeIn {
@@ -22,21 +22,21 @@
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.18;
+  opacity: 0.08;
   pointer-events: none;
   animation: ls-drift 8s ease-in-out infinite alternate;
 }
 
 .ls-blob-1 {
   width: 320px; height: 320px;
-  background: var(--primary);
+  background: var(--color-accent);
   top: -80px; left: -80px;
   animation-duration: 9s;
 }
 
 .ls-blob-2 {
   width: 260px; height: 260px;
-  background: var(--accent);
+  background: var(--color-accent);
   bottom: -60px; right: -60px;
   animation-duration: 11s;
   animation-delay: -3s;
@@ -44,7 +44,7 @@
 
 .ls-blob-3 {
   width: 180px; height: 180px;
-  background: var(--success);
+  background: var(--color-accent);
   top: 50%; left: 60%;
   animation-duration: 7s;
   animation-delay: -5s;
@@ -61,18 +61,18 @@
   flex-direction: column;
   align-items: center;
   gap: 0;
-  padding: 2.5rem 2rem 2rem;
-  border-radius: 28px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
+  padding: var(--space-lg) var(--space-md) var(--space-md);
+  border-radius: var(--radius-card);
+  background: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
   width: 90%;
   max-width: 340px;
-  animation: ls-slideUp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: ls-slideUp 0.45s var(--ease-out);
 }
 
 @keyframes ls-slideUp {
-  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
   to   { opacity: 1; transform: translateY(0)   scale(1);    }
 }
 
@@ -80,13 +80,13 @@
 .ls-logo-ring {
   width: 80px; height: 80px;
   border-radius: 50%;
-  background: conic-gradient(from 180deg, var(--primary), var(--accent), var(--primary));
+  background: conic-gradient(from 180deg, var(--color-accent), var(--color-rule), var(--color-accent));
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--space-sm);
   animation: ls-spin 3s linear infinite;
-  box-shadow: 0 8px 30px rgba(108, 92, 231, 0.35);
+  box-shadow: 0 4px 15px oklch(0.58 0.23 268 / 0.15);
 }
 
 @keyframes ls-spin {
@@ -96,7 +96,7 @@
 .ls-logo-inner {
   width: 68px; height: 68px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background: var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,17 +104,18 @@
 
 /* ── Text ── */
 .ls-title {
-  font-size: 1.6rem;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
   font-weight: 700;
-  color: var(--text);
+  color: var(--color-ink);
   letter-spacing: -0.02em;
-  margin: 0 0 0.2rem;
+  margin: 0 0 var(--space-3xs);
 }
 
 .ls-subtitle {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin: 0 0 1.5rem;
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
+  margin: 0 0 var(--space-sm);
 }
 
 /* ── Animated bars ── */
@@ -122,14 +123,14 @@
   display: flex;
   align-items: flex-end;
   gap: 5px;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-sm);
   height: 48px;
 }
 
 .ls-bar {
   width: 10px;
-  border-radius: 6px;
-  background: linear-gradient(to top, var(--primary), var(--primary-light));
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
   animation: ls-bounce 1s ease-in-out infinite alternate;
   opacity: 0.85;
 }
@@ -142,26 +143,26 @@
 /* ── Progress bar ── */
 .ls-progress-track {
   width: 100%;
-  height: 5px;
-  border-radius: 10px;
-  background: var(--border);
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--color-rule);
   overflow: hidden;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-xs);
 }
 
 .ls-progress-fill {
   height: 100%;
-  border-radius: 10px;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  transition: width 0.3s ease;
-  box-shadow: 0 0 8px rgba(108, 92, 231, 0.4);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  transition: width 0.3s var(--ease-out);
+  box-shadow: 0 0 8px oklch(0.58 0.23 268 / 0.2);
 }
 
 /* ── Status text ── */
 .ls-status {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  margin: 0 0 1.25rem;
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
+  margin: 0 0 var(--space-sm);
   min-width: 80px;
   text-align: center;
   font-weight: 500;
@@ -169,14 +170,14 @@
 
 /* ── Tip ── */
 .ls-tip {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  color: var(--color-ink-2);
   text-align: center;
   font-style: italic;
-  padding: 0.65rem 1rem;
-  border-radius: 12px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-input);
+  background: var(--color-paper);
+  border: 1px solid var(--color-rule);
   line-height: 1.5;
   width: 100%;
 }

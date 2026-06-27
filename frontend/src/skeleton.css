@@ -1,8 +1,10 @@
+/* Hallmark · design-system: design.md · designed-as-app */
+
 .skeleton {
-  background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+  background: linear-gradient(90deg, var(--color-paper-2) 25%, var(--color-rule) 50%, var(--color-paper-2) 75%);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
-  border-radius: 10px;
+  border-radius: var(--radius-input);
 }
 
 @keyframes loading {
@@ -17,13 +19,13 @@
 .skeleton-text {
   height: 20px;
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: var(--space-2xs);
 }
 
 .skeleton-title {
   height: 30px;
   width: 50%;
-  margin-bottom: 15px;
+  margin-bottom: var(--space-xs);
 }
 
 .skeleton-card {

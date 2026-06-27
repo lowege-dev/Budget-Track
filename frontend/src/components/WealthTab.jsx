@@ -44,7 +44,7 @@ export const WealthTab = () => {
     .reduce((s, g) => s + (g.targetAmount - g.currentAmount), 0);
 
   if (isLoading) return (
-    <div style={{ padding: '1rem 1.25rem', paddingBottom: '90px' }}>
+    <div style={{ paddingTop: '1rem', paddingRight: '1.25rem', paddingBottom: '90px', paddingLeft: '1.25rem' }}>
       {/* Summary banner skeleton */}
       <div className="skeleton" style={{ height: 100, borderRadius: 22, marginBottom: 20 }} />
       {/* Section header skeleton */}

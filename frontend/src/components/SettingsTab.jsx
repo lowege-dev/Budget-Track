@@ -155,7 +155,7 @@ export const SettingsTab = () => {
         
         <div style={{ marginBottom: '2rem' }}>
           <h3>Personal Google Sheet Sync</h3>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem', marginTop: '0.5rem' }}>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem', marginTop: '0.5rem' }}>
             Want your transactions backed up instantly? Paste the link to your personal Google Sheet below. 
             <br/><br/>
             <strong>Important:</strong> You MUST share your spreadsheet as an Editor to the app's robot email: 
@@ -173,7 +173,7 @@ export const SettingsTab = () => {
                 {copied ? <Check size={16} color="var(--success)" /> : <Copy size={16} color="var(--text-secondary)" />}
               </button>
             </div>
-          </p>
+          </div>
 
           <form onSubmit={handleSave}>
             <div className="form-group">
