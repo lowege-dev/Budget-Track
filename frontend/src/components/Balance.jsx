@@ -1,15 +1,19 @@
 import React from 'react';
 import { useTransactions } from '../hooks/useTransactions';
+import { useCurrency } from '../hooks/useCurrency';
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 
 export const Balance = () => {
   const { data: transactions, isLoading, isError } = useTransactions();
+  const { currency } = useCurrency();
 
   if (isLoading) return <div className="skeleton skeleton-title" style={{ margin: '0 auto', height: '200px', width: '100%', borderRadius: '20px' }}></div>;
   if (isError) return <div className="balance-amount">Error</div>;
 
   const amounts = transactions.map(transaction => transaction.amount);
-  const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
+  const totalNum = amounts.reduce((acc, item) => (acc += item), 0);
+  const total = Math.abs(totalNum).toFixed(2);
+  const sign = totalNum < 0 ? '-' : '';
   
   const income = amounts.filter(item => item > 0).reduce((acc, item) => (acc += item), 0).toFixed(2);
   const expense = (amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) * -1).toFixed(2);
@@ -29,7 +33,7 @@ export const Balance = () => {
           <span className="balance-hero-label">Total Balance</span>
         </div>
         
-        <h1 className="balance-hero-amount">${total}</h1>
+        <h1 className="balance-hero-amount">{sign}{currency}{total}</h1>
         
         <div className="balance-hero-stats">
           <div className="balance-hero-stat">
@@ -38,7 +42,7 @@ export const Balance = () => {
             </div>
             <div>
               <span className="stat-label">Income</span>
-              <span className="stat-value plus">+${income}</span>
+              <span className="stat-value plus">+{currency}{income}</span>
             </div>
           </div>
           <div className="balance-hero-stat">
@@ -47,7 +51,7 @@ export const Balance = () => {
             </div>
             <div>
               <span className="stat-label">Expense</span>
-              <span className="stat-value minus">-${expense}</span>
+              <span className="stat-value minus">-{currency}{expense}</span>
             </div>
           </div>
         </div>

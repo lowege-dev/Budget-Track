@@ -34,14 +34,12 @@ exports.addAccount = async (req, res) => {
 // @access  Public
 exports.deleteAccount = async (req, res) => {
   try {
-    const account = await Account.findById(req.params.id);
-    if (!account) return res.status(404).json({ success: false, error: 'No account found' });
-    
-    if (account.user.toString() !== req.user.id) {
+    const deletedAccount = await Account.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    if (!deletedAccount) {
+      const exists = await Account.exists({ _id: req.params.id });
+      if (!exists) return res.status(404).json({ success: false, error: 'No account found' });
       return res.status(401).json({ success: false, error: 'Not authorized' });
     }
-
-    await account.deleteOne();
     return res.status(200).json({ success: true, data: {} });
   } catch (err) {
     return res.status(500).json({ success: false, error: 'Server Error' });

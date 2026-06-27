@@ -1,25 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Transaction } from './Transaction';
 import { useTransactions, useAddTransaction } from '../hooks/useTransactions';
-import { Search, Download, Upload, Calendar, Keyboard } from 'lucide-react';
+import { Search, Download, Upload, Calendar } from 'lucide-react';
+import { useToast } from '../hooks/useToast';
 
 export const TransactionList = () => {
   const { data: transactions, isLoading, isError } = useTransactions();
   const { mutate: addTransaction } = useAddTransaction();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [datePreset, setDatePreset] = useState('all');
-  const [toast, setToast] = useState(null);
   const fileInputRef = useRef(null);
   const searchRef = useRef(null);
-
-  // Show toast notification
-  const showToast = (message, icon = '✅') => {
-    setToast({ message, icon });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -89,23 +84,25 @@ export const TransactionList = () => {
 
   if (isError) return <p>Error loading transactions.</p>;
 
-  // Filter transactions
-  const filteredTransactions = transactions?.filter(t => {
-    const matchesSearch = t.text.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          t.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'all' || t.type === filterType;
-    
-    // Date range filter
-    let matchesDate = true;
-    if (dateFrom) matchesDate = matchesDate && new Date(t.date) >= new Date(dateFrom);
-    if (dateTo) {
-      const toDate = new Date(dateTo);
-      toDate.setHours(23, 59, 59);
-      matchesDate = matchesDate && new Date(t.date) <= toDate;
-    }
-    
-    return matchesSearch && matchesType && matchesDate;
-  });
+  // Filter transactions with useMemo to avoid costly recalculations on every render
+  const filteredTransactions = useMemo(() => {
+    return transactions?.filter(t => {
+      const matchesSearch = t.text.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            t.category.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesType = filterType === 'all' || t.type === filterType;
+      
+      // Date range filter
+      let matchesDate = true;
+      if (dateFrom) matchesDate = matchesDate && new Date(t.date) >= new Date(dateFrom);
+      if (dateTo) {
+        const toDate = new Date(dateTo);
+        toDate.setHours(23, 59, 59);
+        matchesDate = matchesDate && new Date(t.date) <= toDate;
+      }
+      
+      return matchesSearch && matchesType && matchesDate;
+    }) || [];
+  }, [transactions, searchTerm, filterType, dateFrom, dateTo]);
 
   // Export CSV function
   const exportCSV = () => {
@@ -125,7 +122,7 @@ export const TransactionList = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    showToast(`Exported ${filteredTransactions.length} transactions`, '📥');
+    toast(`Exported ${filteredTransactions.length} transactions`, 'success');
   };
 
   // Import CSV function
@@ -164,7 +161,7 @@ export const TransactionList = () => {
         }
       });
 
-      showToast(`Imported ${imported} transactions`, '📤');
+      toast(`Imported ${imported} transactions`, 'success');
       e.target.value = ''; // Reset file input
     };
     reader.readAsText(file);
@@ -238,13 +235,6 @@ export const TransactionList = () => {
         <span><kbd>Ctrl</kbd>+<kbd>E</kbd> Export</span>
         <span><kbd>Ctrl</kbd>+<kbd>P</kbd> Print</span>
       </div>
-
-      {/* Toast Notification */}
-      {toast && (
-        <div className="toast">
-          <span>{toast.icon}</span> {toast.message}
-        </div>
-      )}
     </>
   )
 }

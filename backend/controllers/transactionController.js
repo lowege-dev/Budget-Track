@@ -100,24 +100,21 @@ exports.addTransaction = async (req, res) => {
 // @access  Public
 exports.deleteTransaction = async (req, res) => {
   try {
-    const transaction = await Transaction.findById(req.params.id);
+    const deletedTransaction = await Transaction.findOneAndDelete({ _id: req.params.id, user: req.user.id });
 
-    if (!transaction) {
-      return res.status(404).json({
-        success: false,
-        error: 'No transaction found'
-      });
-    }
-
-    // Make sure user owns transaction
-    if (transaction.user.toString() !== req.user.id) {
+    if (!deletedTransaction) {
+      const exists = await Transaction.exists({ _id: req.params.id });
+      if (!exists) {
+        return res.status(404).json({
+          success: false,
+          error: 'No transaction found'
+        });
+      }
       return res.status(401).json({
         success: false,
         error: 'Not authorized to delete this transaction'
       });
     }
-
-    await transaction.deleteOne();
 
     return res.status(200).json({
       success: true,
@@ -136,27 +133,25 @@ exports.deleteTransaction = async (req, res) => {
 // @access  Public
 exports.updateTransaction = async (req, res) => {
   try {
-    const transaction = await Transaction.findById(req.params.id);
+    const updatedTransaction = await Transaction.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      req.body,
+      { new: true, runValidators: true }
+    );
 
-    if (!transaction) {
-      return res.status(404).json({
-        success: false,
-        error: 'No transaction found'
-      });
-    }
-
-    if (transaction.user.toString() !== req.user.id) {
+    if (!updatedTransaction) {
+      const exists = await Transaction.exists({ _id: req.params.id });
+      if (!exists) {
+        return res.status(404).json({
+          success: false,
+          error: 'No transaction found'
+        });
+      }
       return res.status(401).json({
         success: false,
         error: 'Not authorized to update this transaction'
       });
     }
-
-    const updatedTransaction = await Transaction.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
 
     return res.status(200).json({
       success: true,

@@ -1,8 +1,10 @@
 import React from 'react';
 import { useTransactions } from '../hooks/useTransactions';
+import { useCurrency } from '../hooks/useCurrency';
 
 export const IncomeExpenses = () => {
   const { data: transactions, isLoading } = useTransactions();
+  const { currency } = useCurrency();
 
   if (isLoading) return <div className="skeleton skeleton-card" style={{ height: '100px', borderRadius: '15px' }}></div>;
 
@@ -22,11 +24,11 @@ export const IncomeExpenses = () => {
     <div className="income-expense-box">
       <div>
         <h4>Income</h4>
-        <p className="money plus">+${income}</p>
+        <p className="money plus">+{currency}{income}</p>
       </div>
       <div>
         <h4>Expense</h4>
-        <p className="money minus">-${expense}</p>
+        <p className="money minus">-{currency}{expense}</p>
       </div>
     </div>
   )

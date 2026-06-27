@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAccounts, useAddAccount, useDeleteAccount } from '../hooks/useAccounts';
+import { useCurrency } from '../hooks/useCurrency';
 import { PlusCircle, Trash2, Wallet } from 'lucide-react';
 
 export const AccountManagement = () => {
   const { data: accounts, isLoading } = useAccounts();
   const { mutate: addAccount, isPending: isAdding } = useAddAccount();
   const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
+  const { currency } = useCurrency();
 
   const [name, setName] = useState('');
   const [type, setType] = useState('Bank');
@@ -39,7 +41,7 @@ export const AccountManagement = () => {
               <small style={{ color: 'var(--text-secondary)' }}>{acc.type}</small>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <strong>${acc.balance.toFixed(2)}</strong>
+              <strong>{currency}{acc.balance.toFixed(2)}</strong>
               <button onClick={() => deleteAccount(acc._id)} className="delete-btn" style={{ opacity: 1, transform: 'none' }}>
                 <Trash2 size={16} />
               </button>
@@ -71,7 +73,7 @@ export const AccountManagement = () => {
           </select>
           <input 
             type="number" 
-            placeholder="Starting $" 
+            placeholder={`Starting ${currency}`} 
             value={balance} 
             onChange={(e) => setBalance(e.target.value)} 
             style={{ width: '80px', padding: '0.5rem', borderRadius: '5px', background: 'var(--bg-color)', color: 'white', border: '1px solid var(--border-color)' }}

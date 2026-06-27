@@ -21,11 +21,12 @@ exports.addNote = async (req, res) => {
 
 exports.deleteNote = async (req, res) => {
   try {
-    const note = await Note.findById(req.params.id);
-    if (!note) return res.status(404).json({ success: false, error: 'No note found' });
-    if (note.user.toString() !== req.user.id) return res.status(401).json({ success: false, error: 'Not authorized' });
-    
-    await note.deleteOne();
+    const deletedNote = await Note.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    if (!deletedNote) {
+      const exists = await Note.exists({ _id: req.params.id });
+      if (!exists) return res.status(404).json({ success: false, error: 'No note found' });
+      return res.status(401).json({ success: false, error: 'Not authorized' });
+    }
     return res.status(200).json({ success: true, data: {} });
   } catch (err) {
     return res.status(500).json({ success: false, error: 'Server Error' });
@@ -34,11 +35,16 @@ exports.deleteNote = async (req, res) => {
 
 exports.updateNote = async (req, res) => {
   try {
-    const note = await Note.findById(req.params.id);
-    if (!note) return res.status(404).json({ success: false, error: 'No note found' });
-    if (note.user.toString() !== req.user.id) return res.status(401).json({ success: false, error: 'Not authorized' });
-    
-    const updatedNote = await Note.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedNote = await Note.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedNote) {
+      const exists = await Note.exists({ _id: req.params.id });
+      if (!exists) return res.status(404).json({ success: false, error: 'No note found' });
+      return res.status(401).json({ success: false, error: 'Not authorized' });
+    }
     return res.status(200).json({ success: true, data: updatedNote });
   } catch (err) {
     return res.status(500).json({ success: false, error: 'Server Error' });

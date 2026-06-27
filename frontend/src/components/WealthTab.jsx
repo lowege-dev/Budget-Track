@@ -345,7 +345,7 @@ export const WealthTab = () => {
                             </span>
                           ) : (
                             <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                              ${(goal.targetAmount - goal.currentAmount).toFixed(2)} remaining
+                              {currency}{(goal.targetAmount - goal.currentAmount).toFixed(2)} remaining
                             </span>
                           )}
                           <button

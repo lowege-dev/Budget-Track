@@ -12,12 +12,14 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
-  // Configure axios to always send the token
-  if (token) {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete axios.defaults.headers.common['Authorization'];
-  }
+  // Configure axios to always send the token via useEffect to prevent rendering side effects
+  useEffect(() => {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
+    }
+  }, [token]);
 
   useEffect(() => {
     const loadUser = async () => {

@@ -21,11 +21,16 @@ exports.addGoal = async (req, res) => {
 
 exports.updateGoal = async (req, res) => {
   try {
-    const goal = await Goal.findById(req.params.id);
-    if (!goal) return res.status(404).json({ success: false, error: 'No goal found' });
-    if (goal.user.toString() !== req.user.id) return res.status(401).json({ success: false, error: 'Not authorized' });
-    
-    const updatedGoal = await Goal.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedGoal = await Goal.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedGoal) {
+      const exists = await Goal.exists({ _id: req.params.id });
+      if (!exists) return res.status(404).json({ success: false, error: 'No goal found' });
+      return res.status(401).json({ success: false, error: 'Not authorized' });
+    }
     return res.status(200).json({ success: true, data: updatedGoal });
   } catch (err) {
     return res.status(500).json({ success: false, error: 'Server Error' });
@@ -34,11 +39,12 @@ exports.updateGoal = async (req, res) => {
 
 exports.deleteGoal = async (req, res) => {
   try {
-    const goal = await Goal.findById(req.params.id);
-    if (!goal) return res.status(404).json({ success: false, error: 'No goal found' });
-    if (goal.user.toString() !== req.user.id) return res.status(401).json({ success: false, error: 'Not authorized' });
-    
-    await goal.deleteOne();
+    const deletedGoal = await Goal.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    if (!deletedGoal) {
+      const exists = await Goal.exists({ _id: req.params.id });
+      if (!exists) return res.status(404).json({ success: false, error: 'No goal found' });
+      return res.status(401).json({ success: false, error: 'Not authorized' });
+    }
     return res.status(200).json({ success: true, data: {} });
   } catch (err) {
     return res.status(500).json({ success: false, error: 'Server Error' });

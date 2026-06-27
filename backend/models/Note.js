@@ -24,5 +24,6 @@ const NoteSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+NoteSchema.index({ user: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Note', NoteSchema);

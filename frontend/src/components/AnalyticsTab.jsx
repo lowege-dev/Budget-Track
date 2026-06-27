@@ -7,7 +7,31 @@ import { useCurrency } from '../hooks/useCurrency';
 import { useBudgetLimits } from '../hooks/useBudgetLimits';
 import { useGemini } from '../hooks/useGemini';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+const centerTextPlugin = {
+  id: 'centerText',
+  afterDraw(chart) {
+    const { ctx } = chart;
+    const centerTextConfig = chart.options.plugins?.centerText;
+    if (!centerTextConfig) return;
+    
+    const { text, subtext, color, subtextColor } = centerTextConfig;
+    const width = chart.width;
+    const height = chart.height;
+    
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = color;
+    ctx.font = "700 1.3rem 'Outfit', sans-serif";
+    ctx.fillText(text, width / 2, height / 2 - 8);
+    ctx.fillStyle = subtextColor;
+    ctx.font = "400 0.75rem 'Outfit', sans-serif";
+    ctx.fillText(subtext, width / 2, height / 2 + 14);
+    ctx.restore();
+  }
+};
+
+ChartJS.register(ArcElement, Tooltip, Legend, centerTextPlugin);
 
 const CATEGORY_COLORS = { Food: '#f97316', Transport: '#6366f1', Entertainment: '#ec4899', Shopping: '#a855f7', Utilities: '#14b8a6', Salary: '#10b981', Other: '#8395A7' };
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -129,43 +153,33 @@ export const AnalyticsTab = () => {
     return { chartData: data, insights, totalExpense, labels, values, colors, monthName, cats, lastMonthExpense };
   }, [transactions, monthOffset, limits]);
 
-  const options = React.useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: '#2D3436',
-        titleFont: { family: "'Outfit'" },
-        bodyFont: { family: "'Outfit'" },
-        padding: 10,
-        cornerRadius: 10,
-        callbacks: {
-          label: (ctx) => ` ${currency}${ctx.raw.toFixed(2)} (${((ctx.raw / totalExpense) * 100).toFixed(0)}%)`
+  const options = React.useMemo(() => {
+    const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#2D3436';
+    const textSecondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#8395A7';
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#2D3436',
+          titleFont: { family: "'Outfit'" },
+          bodyFont: { family: "'Outfit'" },
+          padding: 10,
+          cornerRadius: 10,
+          callbacks: {
+            label: (ctx) => ` ${currency}${ctx.raw.toFixed(2)} (${((ctx.raw / totalExpense) * 100).toFixed(0)}%)`
+          }
+        },
+        centerText: {
+          text: `${currency}${totalExpense.toFixed(0)}`,
+          subtext: 'Total Spent',
+          color: textColor,
+          subtextColor: textSecondaryColor
         }
       }
-    }
-  }), [currency, totalExpense]);
-
-  const centerText = {
-    id: 'centerText',
-    afterDraw(chart) {
-      const { ctx, width, height } = chart;
-      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#2D3436';
-      const textSecondaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#8395A7';
-      
-      ctx.save();
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = textColor;
-      ctx.font = "700 1.3rem 'Outfit', sans-serif";
-      ctx.fillText(`${currency}${totalExpense.toFixed(0)}`, width / 2, height / 2 - 8);
-      ctx.fillStyle = textSecondaryColor;
-      ctx.font = "400 0.75rem 'Outfit', sans-serif";
-      ctx.fillText('Total Spent', width / 2, height / 2 + 14);
-      ctx.restore();
-    }
-  };
+    };
+  }, [currency, totalExpense]);
 
   return (
     <>
@@ -247,7 +261,7 @@ export const AnalyticsTab = () => {
         {labels.length > 0 ? (
           <>
             <div className="chart-wrap">
-              <Doughnut data={chartData} options={options} plugins={[centerText]} />
+              <Doughnut data={chartData} options={options} />
             </div>
             <div className="chart-legend-custom">
               {labels.map((cat, i) => {

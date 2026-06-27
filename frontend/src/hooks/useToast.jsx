@@ -14,6 +14,7 @@ const TOAST_CONFIG = {
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+  const [isHovered, setIsHovered] = useState(false);
   const timersRef = useRef({});
 
   const removeToast = useCallback((id) => {
@@ -39,25 +40,68 @@ export const ToastProvider = ({ children }) => {
       {children}
 
       {/* Toast Container */}
-      <div style={{
-        position: 'fixed',
-        top: '1rem',
-        right: '1rem',
-        zIndex: 99999,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-        pointerEvents: 'none',
-        maxWidth: '400px',
-        width: 'calc(100% - 2rem)',
-      }}>
-        {toasts.map(t => {
+      <div 
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{
+          position: 'fixed',
+          top: '1rem',
+          right: '1rem',
+          zIndex: 99999,
+          display: 'flex',
+          flexDirection: 'column',
+          pointerEvents: 'none',
+          maxWidth: '400px',
+          width: 'calc(100% - 2rem)',
+          minHeight: toasts.length > 0 ? (isHovered ? `${toasts.length * 60}px` : '80px') : '0px',
+          transition: 'min-height 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
+        {toasts.map((t, index) => {
           const cfg = TOAST_CONFIG[t.type] || TOAST_CONFIG.info;
           const Icon = cfg.icon;
+          
+          // Calculate reverse index relative to the newest toast (last in array)
+          const idx = toasts.length - 1 - index;
+          
+          let transform = '';
+          let opacity = 1;
+          let pointerEvents = 'auto';
+
+          if (t.exiting) {
+            transform = 'translateX(120%) scale(0.9)';
+            opacity = 0;
+            pointerEvents = 'none';
+          } else if (!isHovered) {
+            // Stacked state
+            if (idx === 0) {
+              transform = 'scale(1) translateY(0px)';
+              opacity = 1;
+            } else if (idx === 1) {
+              transform = 'scale(0.95) translateY(10px)';
+              opacity = 0.9;
+            } else if (idx === 2) {
+              transform = 'scale(0.9) translateY(20px)';
+              opacity = 0.75;
+            } else {
+              transform = 'scale(0.85) translateY(30px)';
+              opacity = 0;
+              pointerEvents = 'none';
+            }
+          } else {
+            // Expanded state
+            transform = `scale(1) translateY(${idx * 58}px)`;
+            opacity = 1;
+          }
+
           return (
             <div
               key={t.id}
               style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                left: 0,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.6rem',
@@ -65,9 +109,15 @@ export const ToastProvider = ({ children }) => {
                 borderRadius: '14px',
                 background: 'var(--surface, #fff)',
                 border: `1px solid ${cfg.border}`,
-                boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-                pointerEvents: 'auto',
-                animation: t.exiting ? 'toastOut 0.3s forwards' : 'toastIn 0.35s ease',
+                boxShadow: idx === 0 || isHovered 
+                  ? '0 10px 30px rgba(0,0,0,0.12)' 
+                  : '0 4px 12px rgba(0,0,0,0.06)',
+                pointerEvents: pointerEvents,
+                transform: transform,
+                opacity: opacity,
+                zIndex: toasts.length - idx,
+                animation: t.exiting ? 'none' : idx === 0 ? 'toastInStack 0.35s cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
+                transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease',
                 backdropFilter: 'blur(12px)',
               }}
             >

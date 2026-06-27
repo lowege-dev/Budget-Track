@@ -25,5 +25,6 @@ const AccountSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+AccountSchema.index({ user: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Account', AccountSchema);

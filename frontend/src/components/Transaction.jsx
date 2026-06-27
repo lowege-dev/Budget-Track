@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDeleteTransaction } from '../hooks/useTransactions';
+import { useCurrency } from '../hooks/useCurrency';
 import { Trash2, Utensils, Car, Gamepad2, ShoppingBag, Zap, Briefcase, MoreHorizontal } from 'lucide-react';
 
 const CATEGORY_ICONS = {
@@ -24,6 +25,7 @@ const CATEGORY_COLORS = {
 
 export const Transaction = ({ transaction }) => {
   const { mutate: deleteTransaction, isPending } = useDeleteTransaction();
+  const { currency } = useCurrency();
 
   const sign = transaction.amount < 0 ? '-' : '+';
   const Icon = CATEGORY_ICONS[transaction.category] || MoreHorizontal;
@@ -42,7 +44,7 @@ export const Transaction = ({ transaction }) => {
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <span className={`transaction-amount ${transaction.amount < 0 ? 'minus' : 'plus'}`}>
-          {sign}${Math.abs(transaction.amount).toLocaleString()}
+          {sign}{currency}{Math.abs(transaction.amount).toLocaleString()}
         </span>
         <button 
           onClick={() => deleteTransaction(transaction._id)} 

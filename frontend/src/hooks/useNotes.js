@@ -8,6 +8,7 @@ export const useNotes = (options = {}) => {
       const res = await axios.get('/api/notes');
       return res.data.data;
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes default stale time
     ...options
   });
 };
@@ -19,7 +20,7 @@ export const useAddNote = () => {
       const res = await axios.post('/api/notes', note);
       return res.data.data;
     },
-    onSuccess: () => queryClient.invalidateQueries(['notes'])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notes'] })
   });
 };
 
@@ -29,7 +30,7 @@ export const useDeleteNote = () => {
     mutationFn: async (id) => {
       await axios.delete(`/api/notes/${id}`);
     },
-    onSuccess: () => queryClient.invalidateQueries(['notes'])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notes'] })
   });
 };
 
@@ -40,6 +41,6 @@ export const useEditNote = () => {
       const res = await axios.put(`/api/notes/${id}`, note);
       return res.data.data;
     },
-    onSuccess: () => queryClient.invalidateQueries(['notes'])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notes'] })
   });
 };

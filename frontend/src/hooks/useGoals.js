@@ -8,6 +8,7 @@ export const useGoals = (options = {}) => {
       const res = await axios.get('/api/goals');
       return res.data.data;
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes default stale time
     ...options
   });
 };
@@ -19,7 +20,7 @@ export const useAddGoal = () => {
       const res = await axios.post('/api/goals', goal);
       return res.data.data;
     },
-    onSuccess: () => queryClient.invalidateQueries(['goals'])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['goals'] })
   });
 };
 
@@ -30,7 +31,7 @@ export const useUpdateGoal = () => {
       const res = await axios.put(`/api/goals/${id}`, updates);
       return res.data.data;
     },
-    onSuccess: () => queryClient.invalidateQueries(['goals'])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['goals'] })
   });
 };
 
@@ -40,6 +41,6 @@ export const useDeleteGoal = () => {
     mutationFn: async (id) => {
       await axios.delete(`/api/goals/${id}`);
     },
-    onSuccess: () => queryClient.invalidateQueries(['goals'])
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['goals'] })
   });
 };
